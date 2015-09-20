@@ -44,7 +44,7 @@ void my_main_loop(hdsim& sim, const FermiTable& eos)
      ());
     main_loop(sim,
 	    term_cond,
-	    &hdsim::TimeAdvance,
+	    &hdsim::TimeAdvance2Heun,
 	    &diag,
 	    &manip);
   write_snapshot_to_hdf5(sim,"final.h5",

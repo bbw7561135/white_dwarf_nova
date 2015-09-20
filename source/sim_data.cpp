@@ -31,7 +31,25 @@ SimData::SimData(const InitialData& id,
   gpg_("ghost"),
   sr_
   (eos_,
-   gpg_),
+   gpg_,
+   true,
+   0.2,
+   0.5,
+   0.7,
+   VectorInitialiser<string>
+   ("He4")
+   ("C12")
+   ("O16")
+   ("Ne20")
+   ("Mg24")
+   ("Si28")
+   ("S32")
+   ("Ar36")
+   ("Ca40")
+   ("Ti44")
+   ("Cr48")
+   ("Fe52")
+   ("Ni56")()),
   hbc_(rs_,"ghost",eos_),
   fc_(gpg_,sr_,rs_,hbc_),
   eu_(),
