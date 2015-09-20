@@ -12,7 +12,7 @@ SimData::SimData(const InitialData& id,
    Vector2D
    (1.2*domain.getRadii().second*cos(domain.getAngles().first),
     1.05*domain.getRadii().second)),
-  tess_(create_grid(outer_.getBoundary(),5e-3,0.9*id.radius_list.front()),
+  tess_(create_grid(outer_.getBoundary(),2e-3,0.9*id.radius_list.front()),
 	outer_),
   eos_("eos_tab.coded",1,1,0,generate_atomic_properties()),
   rs_(),
