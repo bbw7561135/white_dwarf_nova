@@ -19,7 +19,7 @@ void my_main_loop(hdsim& sim, const FermiTable& eos)
   write_snapshot_to_hdf5(sim,"initial.h5",
 			 vector<DiagnosticAppendix*>
 			 (1,new TemperatureAppendix(eos)));
-  const double tf = 2;
+  const double tf = 10;
   SafeTimeTermination term_cond(tf, 1e6);
   vector<DiagnosticFunction*> diag_list = VectorInitialiser<DiagnosticFunction*>()
     [new ConsecutiveSnapshots
