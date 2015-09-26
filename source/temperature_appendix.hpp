@@ -3,7 +3,6 @@
 
 #include "source/newtonian/two_dimensional/hdf5_diagnostics.hpp"
 #include "fermi_table.hpp"
-#include "safe_retrieve.hpp"
 
 class TemperatureAppendix: public DiagnosticAppendix
 {

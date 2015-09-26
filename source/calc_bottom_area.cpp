@@ -1,5 +1,4 @@
 #include "calc_bottom_area.hpp"
-#include "safe_retrieve.hpp"
 
 namespace {
 

@@ -1,6 +1,5 @@
 #include "inner_bc.hpp"
 #include "source/newtonian/two_dimensional/simple_flux_calculator.hpp"
-#include "safe_retrieve.hpp"
 
 namespace {
 

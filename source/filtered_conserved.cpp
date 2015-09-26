@@ -1,6 +1,5 @@
 #include <fstream>
 #include "filtered_conserved.hpp"
-#include "safe_retrieve.hpp"
 
 using namespace std;
 

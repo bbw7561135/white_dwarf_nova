@@ -1,5 +1,4 @@
 #include "atlas_support.hpp"
-#include "safe_retrieve.hpp"
 
 AtlasSupport::AtlasSupport(void) {}
 

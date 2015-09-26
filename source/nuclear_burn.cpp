@@ -1,6 +1,5 @@
 #include "nuclear_burn.hpp"
 #include "source/misc/vector_initialiser.hpp"
-#include "safe_retrieve.hpp"
 #include <fstream>
 
 extern "C" {

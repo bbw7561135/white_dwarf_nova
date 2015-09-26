@@ -1,5 +1,4 @@
 #include "energy_appendix.hpp"
-#include "safe_retrieve.hpp"
 
 EnergyAppendix::EnergyAppendix(const FermiTable& eos):
   eos_(eos) {}
