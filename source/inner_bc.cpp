@@ -16,6 +16,18 @@ namespace {
       res.tracers[it->first] = (it->second)*c.Mass;
     return res;
   }
+
+  Extensive seal(const Extensive& c)
+  {
+    Extensive res = c;
+    res.mass = 0;
+    res.energy = 0;
+    for(boost::container::flat_map<string,double>::iterator it=
+	  res.tracers.begin();
+	it!=res.tracers.end();++it)
+      it->second = 0;
+    return res;
+  }
 }
 
 InnerBC::InnerBC
@@ -53,15 +65,17 @@ vector<pair<size_t,Extensive> > InnerBC::operator()
 	cells.at(static_cast<size_t>(edge.neighbors.second));
       const Primitive right = 
 	convert_to_primitive(right_cell,eos_);
+      const Primitive left = reflect(right,p);
       const Conserved c = rotate_solve_rotate_back
 	(rs_,
-	 reflect(right,p),
+	 left,
 	 right,
 	 0,n,p);
       res.push_back
 	(pair<size_t,Extensive>
-	 (i,conserved_to_extensive
-	  (c,right_cell)));
+	 (i,seal
+	  (conserved_to_extensive
+	   (c,right_cell))));
     }
     if(safe_retrieve(cells.at(static_cast<size_t>(edge.neighbors.second)).stickers,ghost_)){
       const Vector2D p = 
@@ -73,15 +87,19 @@ vector<pair<size_t,Extensive> > InnerBC::operator()
 	cells.at(static_cast<size_t>(edge.neighbors.first));
       const Primitive left = 
 	convert_to_primitive(left_cell,eos_);
+      const Primitive right = 
+	reflect(left,p);
       const Conserved c = rotate_solve_rotate_back
 	(rs_,
 	 left,
-	 reflect(left,p),
+	 right,
 	 0,n,p);
       res.push_back
 	(pair<size_t,Extensive>
-	 (i,conserved_to_extensive
-	  (c,left_cell)));
+	 (i,
+	  seal
+	  (conserved_to_extensive
+	   (c,left_cell))));
     }
   }
   return res;
