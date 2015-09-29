@@ -94,12 +94,22 @@ ReflectiveGhostThroughout::operator()
 
 pair<ComputationalCell,ComputationalCell>
 ReflectiveGhostThroughout::GetGhostGradient
-(const Tessellation& /*tess*/,
- const vector<ComputationalCell>& cells,
- const vector<pair<ComputationalCell,ComputationalCell> >& /*gradients*/,
- size_t /*ghost_index*/) const
+(const Tessellation& tess,
+ const vector<ComputationalCell>& /*cells*/,
+ const vector<pair<ComputationalCell,ComputationalCell> >& gradients,
+ size_t ghost_index) const
 {
-  return pair<ComputationalCell,ComputationalCell>
-    (0*cells.front(),
-     0*cells.front());
+  pair<ComputationalCell,ComputationalCell> grad = 
+    gradients
+    [static_cast<size_t>
+     (tess.GetOriginalIndex
+      (static_cast<int>(ghost_index)))];
+  const Vector2D normal = 
+    normalize
+    (tess.GetMeshPoint(static_cast<int>(ghost_index)) - 
+     tess.GetMeshPoint
+     (tess.GetOriginalIndex(static_cast<int>(ghost_index))));
+  grad.first.velocity -= 2*ScalarProd(grad.first.velocity,normal)*normal;
+  grad.second.velocity -= 2*ScalarProd(grad.second.velocity, normal)*normal;
+  return grad;
 }
