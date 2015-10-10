@@ -4,6 +4,6 @@
 #include "source/newtonian/two_dimensional/hdsim2d.hpp"
 #include "fermi_table.hpp"
 
-void my_main_loop(hdsim& sim, const FermiTable& eos);
+void my_main_loop(hdsim& sim, const FermiTable& eos, bool rerun=false);
 
 #endif // MY_MAIN_LOOP_HPP

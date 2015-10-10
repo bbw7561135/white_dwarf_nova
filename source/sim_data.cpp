@@ -3,7 +3,8 @@
 
 SimData::SimData(const InitialData& id,
 		 const Units& u,
-		 const CircularSection& domain):
+		 const CircularSection& domain,
+		 const Snapshot* const ss):
   pg_(Vector2D(0,0), Vector2D(1,0)),
   outer_
   (Vector2D
@@ -12,8 +13,11 @@ SimData::SimData(const InitialData& id,
    Vector2D
    (1.2*domain.getRadii().second*cos(domain.getAngles().first),
     1.05*domain.getRadii().second)),
-  tess_(create_grid(outer_.getBoundary(),2e-3,0.9*id.radius_list.front()),
-	outer_),
+  tess_
+  (ss ?
+   ss->mesh_points :
+   create_grid(outer_.getBoundary(),2e-3,0.9*id.radius_list.front()),
+   outer_),
   eos_("eos_tab.coded",1,1,0,generate_atomic_properties()),
   rs_(),
   point_motion_(),
@@ -57,6 +61,8 @@ SimData::SimData(const InitialData& id,
   sim_(tess_,
        outer_,
        pg_,
+       ss ?
+       ss->cells :
        calc_init_cond(tess_,eos_,id,domain),
        eos_,
        point_motion_,
@@ -64,7 +70,13 @@ SimData::SimData(const InitialData& id,
        tsf_,
        fc_,
        eu_,
-       cu_) {}
+       cu_) 
+{
+  if(ss){
+    sim_.setStartTime(ss->time);
+    delete ss;
+  }
+}
 
 hdsim& SimData::getSim(void)
 {

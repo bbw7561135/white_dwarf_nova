@@ -26,6 +26,7 @@
 #include "source/newtonian/two_dimensional/ghost_point_generators/RigidWallGenerator.hpp"
 #include "source/newtonian/two_dimensional/interpolations/LinearGaussImproved.hpp"
 #include "reflective_ghost_throughout.hpp"
+#include "source/newtonian/two_dimensional/hdf5_diagnostics.hpp"
 
 class SimData
 {
@@ -33,7 +34,8 @@ public:
 
   SimData(const InitialData& id,
 	  const Units& u,
-	  const CircularSection& domain);
+	  const CircularSection& domain,
+	  const Snapshot* const ss = 0);
 
   hdsim& getSim(void);
 

@@ -2,11 +2,12 @@
 #include "units.hpp"
 #include "sim_data.hpp"
 #include "my_main_loop.hpp"
+#include "source/newtonian/two_dimensional/hdf5_diagnostics.hpp"
 #include <fenv.h>
 
 using namespace std;
 
-int main(void)
+int main(int argc, char *argv[])
 {
   feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
 
@@ -22,9 +23,10 @@ int main(void)
 		   CircularSection(id.radius_mid.front(),
 				   id.radius_mid.back(),
 				   0.49*M_PI,
-				   0.51*M_PI));
+				   0.51*M_PI),
+		   argc>1 ? new Snapshot(read_hdf5_snapshot(argv[1])) : 0);
   hdsim& sim = sim_data.getSim();
-  my_main_loop(sim,sim_data.getEOS());
+  my_main_loop(sim,sim_data.getEOS(),argc>1);
 
   const clock_t end = clock();
   ofstream f("wall_time.txt");

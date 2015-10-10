@@ -14,9 +14,9 @@
 
 using namespace simulation2d;
 
-void my_main_loop(hdsim& sim, const FermiTable& eos)
+void my_main_loop(hdsim& sim, const FermiTable& eos, bool rerun)
 {
-  write_snapshot_to_hdf5(sim,"initial.h5",
+  write_snapshot_to_hdf5(sim,rerun ? "rerun_initial.h5" : "initial.h5",
 			 vector<DiagnosticAppendix*>
 			 (1,new TemperatureAppendix(eos)));
   const double tf = 10;
@@ -24,30 +24,31 @@ void my_main_loop(hdsim& sim, const FermiTable& eos)
   vector<DiagnosticFunction*> diag_list = VectorInitialiser<DiagnosticFunction*>()
     [new ConsecutiveSnapshots
      (new ConstantTimeInterval(tf/1000),
-      new Rubric("snapshot_",".h5"),
+      new Rubric(rerun ? "rerun_snapshot_" : "snapshot_",".h5"),
       VectorInitialiser<DiagnosticAppendix*>
       (new TemperatureAppendix(eos))
       (new EnergyAppendix(eos))
       (new VolumeAppendix())())]
-    [new WriteTime("time.txt")]
-    [new WriteCycle("cycle.txt")]
-    [new FilteredConserved("total_conserved.txt")]
+    [new WriteTime(rerun ? "rerun_time.txt" : "time.txt")]
+    [new WriteCycle(rerun ? "rerun_cycle.txt" : "cycle.txt")]
+    [new FilteredConserved(rerun ? "rerun_total_conserved.txt" :"total_conserved.txt")]
     ();
   MultipleDiagnostics diag(diag_list);
   MultipleManipulation manip
     (VectorInitialiser<Manipulate*>
      (new AtlasSupport())
-     (new NuclearBurn(string("alpha_table"),
-		      string("ghost"),
-		      eos,
-		      string("burn_energy_history.txt")))
+     (new NuclearBurn
+      (string("alpha_table"),
+       string("ghost"),
+       eos,
+       string(rerun ? "rerun_burn_energy_history.txt" : "burn_energy_history.txt")))
      ());
     main_loop(sim,
 	    term_cond,
 	    &hdsim::TimeAdvance2Heun,
 	    &diag,
 	    &manip);
-  write_snapshot_to_hdf5(sim,"final.h5",
-			 vector<DiagnosticAppendix*>
-			 (1,new TemperatureAppendix(eos)));
+    write_snapshot_to_hdf5(sim,rerun ? "rerun_final.h5" : "final.h5",
+			   vector<DiagnosticAppendix*>
+			   (1,new TemperatureAppendix(eos)));
 }

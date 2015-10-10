@@ -60,7 +60,8 @@ namespace {
 boost::container::flat_map<size_t, ComputationalCell>
 ReflectiveGhostThroughout::operator()
   (const Tessellation& tess,
-   const vector<ComputationalCell>& cells) const
+   const vector<ComputationalCell>& cells,
+   double time) const
 {
   boost::container::flat_map<size_t, ComputationalCell> res;
   const vector<pair<size_t, size_t> > ghosts =
@@ -97,7 +98,8 @@ ReflectiveGhostThroughout::GetGhostGradient
 (const Tessellation& tess,
  const vector<ComputationalCell>& /*cells*/,
  const vector<pair<ComputationalCell,ComputationalCell> >& gradients,
- size_t ghost_index) const
+ size_t ghost_index,
+ double time) const
 {
   pair<ComputationalCell,ComputationalCell> grad = 
     gradients
