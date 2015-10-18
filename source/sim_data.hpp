@@ -24,7 +24,7 @@
 #include "core_atmosphere_gravity.hpp"
 #include "source/newtonian/two_dimensional/modular_flux_calculator.hpp"
 #include "source/newtonian/two_dimensional/ghost_point_generators/RigidWallGenerator.hpp"
-#include "source/newtonian/two_dimensional/interpolations/LinearGaussImproved.hpp"
+#include "safe_linear_gauss.hpp"
 #include "reflective_ghost_throughout.hpp"
 #include "source/newtonian/two_dimensional/hdf5_diagnostics.hpp"
 
@@ -53,7 +53,7 @@ private:
   SeveralSources force_;
   const SimpleCFL tsf_;
   const ReflectiveGhostThroughout gpg_;
-  const LinearGaussImproved sr_;
+  const SafeLinearGauss sr_;
   const InnerBC hbc_;
   const ModularFluxCalculator fc_;
   const LazyExtensiveUpdater eu_;

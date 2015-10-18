@@ -415,15 +415,34 @@ SafeLinearGauss::SafeLinearGauss
   flat_tracers_(flat_tracers) {}
 
 namespace {
-  pair<ComputationalCell,ComputationalCell> ghost_slope(void)
+  pair<ComputationalCell,ComputationalCell> ghost_slope
+  (const ComputationalCell& sample)
   {
     ComputationalCell c;
     c.density = 0;
     c.pressure = 0;
     c.velocity = Vector2D(0,0);
     c.stickers["ghost"] = true;
+    for(boost::container::flat_map<string,double>::const_iterator it=
+	  sample.tracers.begin();
+	it!=sample.tracers.end();
+	++it)
+      c.tracers[it->first] = 0;
     return pair<ComputationalCell,ComputationalCell>
       (c,c);
+  }
+
+  ComputationalCell eos_redress
+  (const ComputationalCell& c,
+   const FermiTable& eos)
+  {
+    if(safe_retrieve(c.stickers,string("ghost")))
+      return c;
+    ComputationalCell res = c;
+    res.pressure = fmax
+      (res.pressure,
+       eos.dt2p(c.density,1e5,c.tracers));
+    return res;       
   }
 }
 
@@ -441,7 +460,7 @@ vector<pair<ComputationalCell, ComputationalCell> > SafeLinearGauss::operator()
 	for (size_t i = 0; i<CellNumber; ++i)
 	  rslopes_[i] = 
 	    safe_retrieve(cells.at(i).stickers,string("ghost")) ?
-	    ghost_slope() :
+	    ghost_slope(cells.at(i)) :
 	    calc_slope
 	    (tess,
 	     cells,
@@ -483,6 +502,8 @@ vector<pair<ComputationalCell, ComputationalCell> > SafeLinearGauss::operator()
 				edge.neighbors.second),time), CalcCentroid(edge), tess.GetCellCM(edge.neighbors.second));
 		}
 		res[i] = cell_temp;
+		res[i].first = eos_redress(res[i].first,eos_);
+		res[i].second = eos_redress(res[i].second,eos_);
 	}
 	return res;
 }
