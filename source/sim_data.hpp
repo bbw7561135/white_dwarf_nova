@@ -27,6 +27,7 @@
 #include "safe_linear_gauss.hpp"
 #include "reflective_ghost_throughout.hpp"
 #include "source/newtonian/two_dimensional/hdf5_diagnostics.hpp"
+#include "source/newtonian/two_dimensional/stationary_box.hpp"
 
 class SimData
 {
@@ -48,6 +49,7 @@ private:
   const FermiTable eos_;
   const Hllc rs_;
   Eulerian point_motion_;
+  const StationaryBox evc_;
   CoreAtmosphereGravity cag_;
   CylindricalComplementary geom_force_;
   SeveralSources force_;
