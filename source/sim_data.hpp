@@ -28,6 +28,7 @@
 #include "reflective_ghost_throughout.hpp"
 #include "source/newtonian/two_dimensional/hdf5_diagnostics.hpp"
 #include "source/newtonian/two_dimensional/stationary_box.hpp"
+#include "selective_lagrangian.hpp"
 
 class SimData
 {
@@ -48,7 +49,7 @@ private:
   VoronoiMesh tess_;
   const FermiTable eos_;
   const Hllc rs_;
-  Eulerian point_motion_;
+  SelectiveLagrangian point_motion_;
   const StationaryBox evc_;
   CoreAtmosphereGravity cag_;
   CylindricalComplementary geom_force_;
