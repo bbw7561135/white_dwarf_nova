@@ -99,7 +99,8 @@ ReflectiveGhostThroughout::GetGhostGradient
  const vector<ComputationalCell>& /*cells*/,
  const vector<pair<ComputationalCell,ComputationalCell> >& gradients,
  size_t ghost_index,
- double /*time*/) const
+ double /*time*/,
+ const Edge& /*edge*/) const
 {
   pair<ComputationalCell,ComputationalCell> grad = 
     gradients
