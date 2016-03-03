@@ -23,6 +23,33 @@ namespace {
        lower_left.y, 
        upper_right.y);
   }
+
+  size_t sort_point(Tessellation const& tess,
+		    Vector2D const& point)
+  {
+    for(size_t i=0;i<static_cast<size_t>(tess.GetPointNo());++i){
+      vector<Vector2D> vertices;
+      ConvexHull(vertices,tess,static_cast<int>(i));
+      if(PointInCell(vertices,point))
+	return i;
+    }
+    assert(false && "Point does not belong in tessllation");
+  }
+
+  vector<Vector2D> distribute_grid
+  (const Tessellation& proc_tess,
+   const vector<Vector2D>& complete)
+  {
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+    vector<Vector2D> res;
+    BOOST_FOREACH(const Vector2D& p, complete){
+      if(static_cast<size_t>(rank)==
+	 sort_point(proc_tess,p))
+	res.push_back(p);
+    }
+    return res;
+  }
 }
 
 #endif // RICH_MPI
@@ -43,13 +70,23 @@ SimData::SimData(const InitialData& id,
    (1.2*domain.getRadii().second*cos(domain.getAngles().first),
     1.05*domain.getRadii().second)),
 #ifdef RICH_MPI
-  proctess_(process_positions(outer_), outer_),
-#endif // RICH_MPI
+  proctess_
+  (process_positions(outer_),
+   outer_),
+  tess_
+  (distribute_grid
+   (proctess_,
+    ss ?
+    ss->mesh_points :
+    create_grid(outer_.getBoundary(),2e-3,0.9*id.radius_list.front())),
+    outer_),
+#else
   tess_
   (ss ?
    ss->mesh_points :
    create_grid(outer_.getBoundary(),2e-3,0.9*id.radius_list.front()),
    outer_),
+#endif // RICH_MPI
   eos_("eos_tab.coded",1,1,0,generate_atomic_properties()),
   rs_(),
   point_motion_(),
