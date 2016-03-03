@@ -22,7 +22,7 @@ elif compiler=='clang++':
 elif compiler=='mpiCC':
     cflags = ' '
     if int(debug):
-        cflags += ' -O0 -g -pg -Wfatal-errors '
+        cflags += ' -O0 -g -pg -Wfatal-errors -DRICH_MPI '
         linkflags = ' -g -pg '
     else:
         cflags += ' -O3 -Wfatal-errors -DRICH_MPI '

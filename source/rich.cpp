@@ -4,11 +4,19 @@
 #include "my_main_loop.hpp"
 #include "source/newtonian/two_dimensional/hdf5_diagnostics.hpp"
 #include <fenv.h>
+/*
+#ifndef RICH_MPI
+#include <mpi.h>
+#endif // RICH_MPI
+*/
 
 using namespace std;
 
 int main(int argc, char *argv[])
 {
+#ifdef RICH_MPI
+  MPI_Init(NULL, NULL);
+#endif // RICH_MPI
   feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
 
   const clock_t begin = clock();
@@ -32,6 +40,10 @@ int main(int argc, char *argv[])
   ofstream f("wall_time.txt");
   f << static_cast<double>(end-begin)/CLOCKS_PER_SEC << endl;
   f.close();
+
+#ifdef RICH_MPI
+  MPI_Finalize();
+#endif // RICH_MPI
 
   return 0;
 }
