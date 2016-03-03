@@ -93,15 +93,16 @@ ReflectiveGhostThroughout::operator()
   return res;
 }
 
-pair<ComputationalCell,ComputationalCell>
+Slope
 ReflectiveGhostThroughout::GetGhostGradient
 (const Tessellation& tess,
  const vector<ComputationalCell>& /*cells*/,
- const vector<pair<ComputationalCell,ComputationalCell> >& gradients,
+ const vector<Slope>& gradients,
  size_t ghost_index,
- double /*time*/) const
+ double /*time*/,
+ const Edge& /*edge*/) const
 {
-  pair<ComputationalCell,ComputationalCell> grad = 
+  Slope grad = 
     gradients
     [static_cast<size_t>
      (tess.GetOriginalIndex
@@ -111,7 +112,9 @@ ReflectiveGhostThroughout::GetGhostGradient
     (tess.GetMeshPoint(static_cast<int>(ghost_index)) - 
      tess.GetMeshPoint
      (tess.GetOriginalIndex(static_cast<int>(ghost_index))));
-  grad.first.velocity -= 2*ScalarProd(grad.first.velocity,normal)*normal;
-  grad.second.velocity -= 2*ScalarProd(grad.second.velocity, normal)*normal;
+  grad.xderivative.velocity -= 
+    2*ScalarProd(grad.xderivative.velocity,normal)*normal;
+  grad.yderivative.velocity -= 
+    2*ScalarProd(grad.yderivative.velocity, normal)*normal;
   return grad;
 }

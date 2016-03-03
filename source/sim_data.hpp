@@ -28,7 +28,8 @@
 #include "reflective_ghost_throughout.hpp"
 #include "source/newtonian/two_dimensional/hdf5_diagnostics.hpp"
 #include "source/newtonian/two_dimensional/stationary_box.hpp"
-#include "selective_lagrangian.hpp"
+#include "source/newtonian/two_dimensional/point_motions/lagrangian.hpp"
+#include "source/newtonian/two_dimensional/condition_action_sequence.hpp"
 
 class SimData
 {
@@ -46,21 +47,23 @@ public:
 private:
   const CylindricalSymmetry pg_;
   const SquareBox outer_;
+#ifdef RICH_MPI
+VoronoiMesh proctess_;
+#endif // RICH_MPI
   VoronoiMesh tess_;
   const FermiTable eos_;
   const Hllc rs_;
-  SelectiveLagrangian point_motion_;
+  Lagrangian point_motion_;
   const StationaryBox evc_;
   CoreAtmosphereGravity cag_;
   CylindricalComplementary geom_force_;
   SeveralSources force_;
   const SimpleCFL tsf_;
-  const ReflectiveGhostThroughout gpg_;
-  const SafeLinearGauss sr_;
-  const InnerBC hbc_;
-  const ModularFluxCalculator fc_;
-  const LazyExtensiveUpdater eu_;
-  const LazyCellUpdater cu_;
+const ConditionActionSequence::Condition* dummy_1;
+const ConditionActionSequence::Action* dummy_2;
+  const ConditionActionSequence fc_;
+  const SimpleExtensiveUpdater eu_;
+  const SimpleCellUpdater cu_;
   hdsim sim_;
 };
 

@@ -35,8 +35,11 @@ public:
 		const vector<string>& flat_tracers =
 		vector<string>());
 
-	vector<pair<ComputationalCell, ComputationalCell> > operator() (const Tessellation& tess,
-		const vector<ComputationalCell>& cells,double time)const;
+	void operator() 
+	(const Tessellation& tess,
+	 const vector<ComputationalCell>& cells,
+	 double time,
+	 vector<pair<ComputationalCell, ComputationalCell> >& res) const;
 
 	/*! \brief Interpolates a cell
 	\param cell The primitives of the cell
@@ -45,26 +48,28 @@ public:
 	\param target The location of the interpolation
 	\return The interpolated value
 	*/
-
-	ComputationalCell Interp(ComputationalCell const& cell, size_t cell_index, Vector2D const& cm, Vector2D const& target)const;
+	ComputationalCell Interp
+	(const ComputationalCell& cell, 
+	 const Slope& slope,
+	 const Vector2D& target,
+	 const Vector2D& cm) const;
 
 	/*!
 	\brief Returns the gradients
 	\return The gradients
 	*/
-	vector<pair<ComputationalCell, ComputationalCell> >& GetSlopes(void)const;
+  vector<Slope>& GetSlopes(void) const;
 
 	/*!
 	\brief Returns the unsloped limtied gradients
 	\return The gradients
 	*/
-	vector<pair<ComputationalCell, ComputationalCell> >& GetSlopesUnlimited(void)const;
-
+	vector<Slope>& GetSlopesUnlimited(void)const;
 private:
   const FermiTable& eos_;
 	GhostPointGenerator const& ghost_;
-	mutable vector<pair<ComputationalCell, ComputationalCell> > rslopes_;
-	mutable vector<pair<ComputationalCell, ComputationalCell> > naive_rslopes_;
+	mutable vector<Slope> rslopes_;
+	mutable vector<Slope> naive_rslopes_;
 	const bool slf_;
 	const double shockratio_;
 	const double diffusecoeff_;

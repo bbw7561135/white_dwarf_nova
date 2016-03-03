@@ -1,5 +1,34 @@
+#ifdef RICH_MPI
+#include "source/mpi/MeshPointsMPI.hpp"
+#include "source/misc/mesh_generator.hpp"
+#endif
 #include "sim_data.hpp"
 #include "calc_bottom_area.hpp"
+
+#ifdef RICH_MPI
+
+namespace {
+  vector<Vector2D> process_positions
+  (const SquareBox& boundary)
+  {
+    int ws = 0;
+    MPI_Comm_size(MPI_COMM_WORLD,&ws);
+    const size_t ws2 = static_cast<size_t>(ws);
+    const Vector2D lower_left = boundary.getBoundary().first;
+    const Vector2D upper_right = boundary.getBoundary().second;
+    return RandSquare
+      (ws2,
+       lower_left.x, 
+       upper_right.x,
+       lower_left.y, 
+       upper_right.y);
+  }
+}
+
+#endif // RICH_MPI
+
+typedef pair<const ConditionActionSequence::Condition*,
+	     const ConditionActionSequence::Action*> capp;
 
 SimData::SimData(const InitialData& id,
 		 const Units& u,
@@ -13,6 +42,9 @@ SimData::SimData(const InitialData& id,
    Vector2D
    (1.2*domain.getRadii().second*cos(domain.getAngles().first),
     1.05*domain.getRadii().second)),
+#ifdef RICH_MPI
+  proctess_(process_positions(outer_), outer_),
+#endif // RICH_MPI
   tess_
   (ss ?
    ss->mesh_points :
@@ -33,46 +65,34 @@ SimData::SimData(const InitialData& id,
 	 (&geom_force_)
 	 ()),
   tsf_(0.3),
-  gpg_("ghost"),
-  sr_
-  (eos_,
-   gpg_,
-   true,
-   0.2,
-   0.5,
-   0.7,
-   VectorInitialiser<string>
-   ("He4")
-   ("C12")
-   ("O16")
-   ("Ne20")
-   ("Mg24")
-   ("Si28")
-   ("S32")
-   ("Ar36")
-   ("Ca40")
-   ("Ti44")
-   ("Cr48")
-   ("Fe52")
-   ("Ni56")()),
-  hbc_(rs_,"ghost",eos_),
-  fc_(sr_,rs_,hbc_),
+  fc_
+  (VectorInitialiser<capp>
+   (capp(new IsBoundaryEdge,
+	 new RigidWallFlux(rs_)))
+   (capp(new IsBoundaryEdge, 
+	 new RegularFlux(rs_)))
+   ()),
   eu_(),
   cu_(),
-  sim_(tess_,
-       outer_,
-       pg_,
-       ss ?
-       ss->cells :
-       calc_init_cond(tess_,eos_,id,domain),
-       eos_,
-       point_motion_,
-       evc_,
-       force_,
-       tsf_,
-       fc_,
-       eu_,
-       cu_) 
+  sim_
+  (
+#ifdef RICH_MPI
+   proctess_,
+#endif // RICH_MPI
+   tess_,
+   outer_,
+   pg_,
+   ss ?
+   ss->cells :
+   calc_init_cond(tess_,eos_,id,domain),
+   eos_,
+   point_motion_,
+   evc_,
+   force_,
+   tsf_,
+   fc_,
+   eu_,
+   cu_) 
 {
   if(ss){
     sim_.setStartTime(ss->time);

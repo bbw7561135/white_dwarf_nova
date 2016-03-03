@@ -19,13 +19,14 @@ public:
    const vector<ComputationalCell>& cells,
    double time) const;
 
-  pair<ComputationalCell,ComputationalCell>
+  Slope
   GetGhostGradient
   (const Tessellation& tess,
    const vector<ComputationalCell>& cells,
-   const vector<pair<ComputationalCell,ComputationalCell> >& gradients,
+   const vector<Slope>& gradients,
    size_t ghost_index,
-   double time) const;
+   double time,
+   const Edge& edge) const;
 
 private:
   const string ghost_;

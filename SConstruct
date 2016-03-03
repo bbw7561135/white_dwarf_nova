@@ -19,6 +19,13 @@ elif compiler=='clang++':
         linkflags = ' -g -pg'
     else:
         cflags += ' -O3 -march=native'
+elif compiler=='mpiCC':
+    cflags = ' '
+    if int(debug):
+        cflags += ' -O0 -g -pg -Wfatal-errors '
+        linkflags = ' -g -pg '
+    else:
+        cflags += ' -O3 -Wfatal-errors -DRICH_MPI '
 else:
     raise NameError('unsupported compiler')
 
