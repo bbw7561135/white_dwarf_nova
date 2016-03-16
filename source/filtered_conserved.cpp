@@ -10,14 +10,14 @@ void FilteredConserved::operator()(const hdsim& sim)
 {
   const vector<ComputationalCell>& cells = sim.getAllCells();
   const vector<Extensive>& extensives = sim.getAllExtensives();
-  Extensive buf;
-  buf.mass = 0;
-  buf.momentum = Vector2D(0,0);
-  buf.energy = 0;
+
+  // Find first relevant extensives
+  Extensive buf = extensives.at(0);
+  buf -= extensives.at(0);
   for(size_t i=0;i<extensives.size();++i){
     if(safe_retrieve(cells[i].stickers,string("ghost")))
       continue;
-    buf += extensives[i];
+    buf += extensives.at(i);
   }
   data_.push_back
     (pair<double,Extensive>

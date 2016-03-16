@@ -57,6 +57,61 @@ namespace {
 typedef pair<const ConditionActionSequence::Condition*,
 	     const ConditionActionSequence::Action*> capp;
 
+typedef pair<const SimpleCellUpdater::Condition*,
+	     const SimpleCellUpdater::Action*> scupp;
+
+namespace{
+  class BothSpecial: public ConditionActionSequence::Condition
+  {
+  public:
+
+    explicit BothSpecial(const string& sticker_name):
+      sticker_name_(sticker_name) {}
+
+    virtual pair<bool, bool>
+    operator()
+    (const Edge& edge,
+     const Tessellation& tess,
+     const vector<ComputationalCell>& cells) const
+    {
+      const size_t neighbor_1_index = 
+	static_cast<size_t>(edge.neighbors.first);
+      const ComputationalCell cell_1 = cells.at(neighbor_1_index);
+      const bool cond_1 = 
+	safe_retrieve(cell_1.stickers, sticker_name_);
+
+      const size_t neighbor_2_index =
+	static_cast<size_t>(edge.neighbors.second);
+      const ComputationalCell cell_2 = cells.at(neighbor_2_index);
+      const bool cond_2 = 
+	safe_retrieve(cell_2.stickers, sticker_name_);
+
+      return pair<bool,bool>(cond_1 && cond_2, false);
+    }
+
+  private:
+    const string sticker_name_;
+  };
+
+  class ZeroFlux: public ConditionActionSequence::Action
+  {
+  public:
+
+    void operator()
+    (const Edge& edge,
+     const Tessellation& tess,
+     const Vector2D& edge_velocity,
+     const vector<ComputationalCell>& cells,
+     const EquationOfState& eos,
+     const bool aux,
+     Extensive& res,
+     double time) const
+    {
+      res.tracers = cells.at(0).tracers;
+    }
+  };
+}
+
 SimData::SimData(const InitialData& id,
 		 const Units& u,
 		 const CircularSection& domain,
@@ -89,6 +144,7 @@ SimData::SimData(const InitialData& id,
 #endif // RICH_MPI
   eos_("eos_tab.coded",1,1,0,generate_atomic_properties()),
   rs_(),
+  alt_point_motion_(),
   point_motion_(),
   evc_(),
   cag_
@@ -106,11 +162,17 @@ SimData::SimData(const InitialData& id,
   (VectorInitialiser<capp>
    (capp(new IsBoundaryEdge,
 	 new RigidWallFlux(rs_)))
-   (capp(new IsBoundaryEdge, 
+   (capp(new BothSpecial("ghost"),
+	 new ZeroFlux))
+   (capp(new RegularSpecialEdge("ghost"), 
+	 new RigidWallFlux(rs_)))
+   (capp(new IsBulkEdge,
 	 new RegularFlux(rs_)))
    ()),
   eu_(),
-  cu_(),
+  cu_
+  (VectorInitialiser<scupp>
+   (scupp(new HasSticker("ghost"), new SkipUpdate))()),
   sim_
   (
 #ifdef RICH_MPI
@@ -123,7 +185,7 @@ SimData::SimData(const InitialData& id,
    ss->cells :
    calc_init_cond(tess_,eos_,id,domain),
    eos_,
-   point_motion_,
+   alt_point_motion_,
    evc_,
    force_,
    tsf_,
