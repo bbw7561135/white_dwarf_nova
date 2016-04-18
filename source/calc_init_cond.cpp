@@ -61,7 +61,7 @@ calc_init_cond(const Tessellation& tess,
       continue;
     safe_retrieve
       (res.at(i).stickers,
-       res_2.tracer_names,
+       res_2.sticker_names,
        string("ghost")) = false;
     const double density = density_interpolator(radius);
     const double temperature = temperature_interpolator(radius);
