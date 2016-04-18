@@ -174,6 +174,7 @@ SimData::SimData(const InitialData& id,
   cu_
   (VectorInitialiser<scupp>
    (scupp(new HasSticker("ghost"), new SkipUpdate))()),
+  init_cond_(calc_init_cond(tess_,eos_,id,domain)),
   sim_
   (
 #ifdef RICH_MPI
@@ -184,7 +185,7 @@ SimData::SimData(const InitialData& id,
    pg_,
    ss ?
    ss->cells :
-   calc_init_cond(tess_,eos_,id,domain).second,
+   init_cond_.second,
    eos_,
    alt_point_motion_,
    evc_,
@@ -192,7 +193,8 @@ SimData::SimData(const InitialData& id,
    tsf_,
    fc_,
    eu_,
-   cu_) 
+   cu_,
+   init_cond_.first) 
 {
   if(ss){
     sim_.setStartTime(ss->time);

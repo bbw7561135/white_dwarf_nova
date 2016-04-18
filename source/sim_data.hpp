@@ -63,6 +63,8 @@ VoronoiMesh proctess_;
   const ConditionActionSequence fc_;
   const SimpleExtensiveUpdater eu_;
   const SimpleCellUpdater cu_;
+  const pair<TracerStickerNames, vector<ComputationalCell> >
+  init_cond_;
   hdsim sim_;
 };
 
