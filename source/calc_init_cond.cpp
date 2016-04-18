@@ -38,6 +38,7 @@ calc_init_cond(const Tessellation& tess,
     res.at(i).density = id.density_list.back();
     res.at(i).velocity = Vector2D(0,0);
     res.at(i).stickers[0] = true;
+    res.at(i).tracers.resize(res_2.tracer_names.size());
     for(boost::container::flat_map<string,Interpolator*>::const_iterator it=
 	  tracer_intepolators.begin();
 	it!=tracer_intepolators.end();
