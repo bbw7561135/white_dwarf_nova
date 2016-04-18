@@ -125,6 +125,8 @@ vector<Extensive> CoreAtmosphereGravity::operator()
     (gravitation_constant_, emc);
   vector<Extensive> res(static_cast<size_t>(tess.GetPointNo()));
   for(size_t i=0;i<res.size();++i){
+    res.at(i).tracers = vector<double>
+      (cells.at(i).tracers.size(),0);
     if(safe_retrieve
        (cells.at(i).stickers,
 	tsn.sticker_names,
@@ -137,8 +139,7 @@ vector<Extensive> CoreAtmosphereGravity::operator()
     res[i].momentum = volume*cells[i].density*acceleration;
     res[i].energy = volume*cells[i].density*ScalarProd
       (acceleration,cells[i].velocity);
-    res.at(i).tracers = vector<double>
-      (cells.at(i).tracers.size(),0);
+
   }
   return res;
 }
