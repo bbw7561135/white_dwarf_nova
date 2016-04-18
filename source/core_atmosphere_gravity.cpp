@@ -137,6 +137,8 @@ vector<Extensive> CoreAtmosphereGravity::operator()
     res[i].momentum = volume*cells[i].density*acceleration;
     res[i].energy = volume*cells[i].density*ScalarProd
       (acceleration,cells[i].velocity);
+    res.at(i).tracers = vector<double>
+      (cells.at(i).tracers.size(),0);
   }
   return res;
 }
