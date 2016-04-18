@@ -15,7 +15,10 @@ void FilteredConserved::operator()(const hdsim& sim)
   Extensive buf = extensives.at(0);
   buf -= extensives.at(0);
   for(size_t i=0;i<extensives.size();++i){
-    if(safe_retrieve(cells[i].stickers,string("ghost")))
+    if(safe_retrieve
+       (cells[i].stickers,
+	sim.GetTracerStickerNames().sticker_names,
+	string("ghost")))
       continue;
     buf += extensives.at(i);
   }

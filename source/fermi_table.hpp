@@ -11,6 +11,7 @@
 #include <string>
 #include <cassert>
 #include <map>
+#include <boost/container/flat_map.hpp>
 
 using std::string;
 using std::map;
@@ -48,7 +49,8 @@ public:
   double dt2p
   (double density, 
    double temperature,
-   const boost::container::flat_map<string,double>& tracers) const;
+   const tvector& tracer_values,
+   const vector<string>& tracer_names) const;
 
   /*! \brief Calculates the Energy
     \param density Density
@@ -77,7 +79,8 @@ public:
   double de2p
   (double density, 
    double energy, 
-   const boost::container::flat_map<string,double>& tracers) const;
+   const vector<double>& tracer_values,
+   const vector<string>& tracer_names) const;
 
   /*! \brief Calculates the energy
     \param density Density
@@ -98,7 +101,8 @@ public:
   double de2c
   (double density, 
    double energy, 
-   const boost::container::flat_map<string,double>& tracers) const;
+   const vector<double>& tracer_values,
+   const vector<string>& tracer_name) const;
 
   /*! \brief Calculates the speed of sound
     \param density Density
@@ -113,27 +117,32 @@ public:
   double dp2c
   (double density, 
    double pressure, 
-   const boost::container::flat_map<string,double>& tracers) const;
+   const vector<double>& tracer_values,
+   const vector<string>& tracer_names) const;
 
   double dp2e
   (double density, 
    double pressure, 
-   const boost::container::flat_map<string,double>& tracers) const;
+   const vector<double>& tracer_values,
+   const vector<string>& tracer_names) const;
 
   double dp2t
   (double density,
    double pressure,
-   const boost::container::flat_map<string,double>& tracers) const;
+   const vector<double>& tracer_values,
+   const vector<string>& tracer_names) const;
 
   double dp2s
   (double density, 
    double pressure, 
-   const boost::container::flat_map<string,double>& tracers) const;
+   const vector<double>& tracer_values,
+   const vector<string>& tracer_names) const;
 
   double sd2p
   (double entropy, 
    double density, 
-   const boost::container::flat_map<string,double>& tracers) const;
+   const vector<double>& tracer_values,
+   const vector<string>& tracer_names) const;
 
   enum Mode{
     rho_enr,
@@ -168,7 +177,8 @@ public:
 		      ThermodynamicVariables& tv) const;
 
   std::pair<double,double> calcAverageAtomicProperties
-  (const boost::container::flat_map<string,double>& tracers) const;
+  (const vector<double>& tracer_values,
+   const vector<string>& tracer_names) const;
 
   const boost::container::flat_map<string,pair<double,double> >& getAtomicProperties(void) const;
 

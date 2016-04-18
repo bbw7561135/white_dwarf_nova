@@ -13,7 +13,6 @@
 #include "monopole_self_gravity.hpp"
 #include "source/newtonian/two_dimensional/source_terms/cylindrical_complementary.hpp"
 #include "source/newtonian/two_dimensional/source_terms/SeveralSources.hpp"
-#include "inner_bc.hpp"
 #include "lazy_extensive_updater.hpp"
 #include "lazy_cell_updater.hpp"
 #include "create_grid.hpp"

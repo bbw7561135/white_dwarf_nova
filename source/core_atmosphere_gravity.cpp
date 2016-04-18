@@ -4,11 +4,15 @@ namespace {
   vector<pair<double,double> > calc_mass_radius_list
   (const Tessellation& tess,
    const vector<ComputationalCell>& cells,
+   const TracerStickerNames& tsn,
    const CacheData& cd)
   {
     vector<pair<double, double> > res;
     for(size_t i=0;i<cells.size();++i){
-      if(cells[i].stickers.find("ghost")->second)
+      if(safe_retrieve
+	 (cells.at(i).stickers,
+	  tsn.sticker_names,
+	  string("ghost")))
 	continue;
       const double radius = abs(tess.GetCellCM(static_cast<int>(i)));
       const double mass = cd.volumes[i]*cells[i].density;
@@ -105,13 +109,15 @@ vector<Extensive> CoreAtmosphereGravity::operator()
    const vector<ComputationalCell>& cells,
    const vector<Extensive>& /*fluxes*/,
    const vector<Vector2D>& /*point_velocities*/,
-   const double /*time*/) const
+   const double /*time*/,
+   const TracerStickerNames& tsn) const
 {
   const EnclosedMassCalculator emc
     (core_mass_,
      calc_mass_radius_list
      (tess,
       cells,
+      tsn,
       cd),
      sample_radii_,
      section2shell_);
@@ -119,7 +125,10 @@ vector<Extensive> CoreAtmosphereGravity::operator()
     (gravitation_constant_, emc);
   vector<Extensive> res(static_cast<size_t>(tess.GetPointNo()));
   for(size_t i=0;i<res.size();++i){
-    if(cells[i].stickers.find("ghost")->second)
+    if(safe_retrieve
+       (cells.at(i).stickers,
+	tsn.sticker_names,
+	string("ghost")))
       continue;
     const Vector2D acceleration =
       ac(tess.GetCellCM(static_cast<int>(i)));

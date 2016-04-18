@@ -10,9 +10,11 @@
 
 using std::vector;
 
-vector<ComputationalCell> calc_init_cond(const Tessellation& tess,
-					 const FermiTable& eos,
-					 const InitialData& id,
-					 const Shape2D& cd);
+pair<TracerStickerNames, vector<ComputationalCell> >
+calc_init_cond
+(const Tessellation& tess,
+ const FermiTable& eos,
+ const InitialData& id,
+ const Shape2D& cd);
 
 #endif // CALC_INIT_COND_HPP

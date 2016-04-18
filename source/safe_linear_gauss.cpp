@@ -184,10 +184,14 @@ namespace
 	cmin.pressure = std::min(cmin.pressure, cell_temp.pressure);
 	cmin.velocity.x = std::min(cmin.velocity.x, cell_temp.velocity.x);
 	cmin.velocity.y = std::min(cmin.velocity.y, cell_temp.velocity.y);
-	for (boost::container::flat_map<std::string, double>::iterator it = cmax.tracers.begin(); it != cmax.tracers.end(); ++it)
-	  it->second = std::max(it->second, safe_retrieve(cell_temp.tracers,it->first));
-	for (boost::container::flat_map<std::string, double>::iterator it = cmin.tracers.begin(); it != cmin.tracers.end(); ++it)
-	  it->second = std::min(it->second, safe_retrieve(cell_temp.tracers,it->first));
+	for(size_t i=0;i<cmax.tracers.size();++i){
+	  cmax.tracers.at(i) = std::max
+	    (cmax.tracers.at(i),
+	     cell_temp.tracers.at(i));
+	  cmin.tracers.at(i) = std::max
+	    (cmin.tracers.at(i),
+	     cell_temp.tracers.at(i));
+	}
       }
     ComputationalCell maxdiff = cmax - cell,mindiff = cmin - cell;
     // limit the slope
@@ -234,22 +238,21 @@ namespace
 	  }
 	// tracers
 	size_t counter = 0;
-	for (boost::container::flat_map<std::string, double>::iterator it = dphi.tracers.begin(); it != dphi.tracers.end(); ++it)
-	  {
-	    double cell_tracer = safe_retrieve(cell.tracers,it->first);
-	    double diff_tracer = safe_retrieve(maxdiff.tracers,it->first);
-	    double centroid_tracer = safe_retrieve(centroid_val.tracers,it->first);
-	    if (std::abs(it->second) > 0.1*std::max(std::abs(diff_tracer), std::abs(safe_retrieve(mindiff.tracers,it->first))) || centroid_tracer*cell_tracer < 0)
-	      {
-		if (it->second > std::abs(1e-9*cell_tracer))
-		  psi[4 + counter] = std::min(psi[4 + counter], diff_tracer / it->second);
-		else
-		  if (it->second < -std::abs(1e-9 * cell_tracer))
-		    psi[4 + counter] = std::min(psi[4 + counter], safe_retrieve(mindiff.tracers,it->first)
-						/ it->second);
-	      }
+	for(size_t i=0;i<dphi.tracers.size();++i){
+	  const double cell_tracer = cell.tracers.at(i);
+	  const double diff_tracer = maxdiff.tracers.at(i);
+	  const double centroid_tracer = centroid_val.tracers.at(i);
+	  if(abs(dphi.tracers.at(i))>0.1*std::max(std::abs(diff_tracer), std::abs(mindiff.tracers.at(i))) ||
+	     centroid_tracer*cell_tracer<0){
+	    if(dphi.tracers.at(i)>std::abs(1e-9*cell_tracer))
+	      psi.at(4+counter) = std::min(psi.at(4+counter), diff_tracer/dphi.tracers.at(i));
+	    else{
+	      if(dphi.tracers.at(i) > std::abs(1e-9*cell_tracer))
+		psi.at(4+counter) = std::min(psi.at(4+counter), mindiff.tracers.at(i)/dphi.tracers.at(i));
+	    }
 	    ++counter;
 	  }
+	}
       }
     res.xderivative.density *= psi[0];
     res.yderivative.density *= psi[0];
@@ -260,14 +263,11 @@ namespace
     res.xderivative.velocity.y *= psi[3];
     res.yderivative.velocity.y *= psi[3];
     size_t counter = 0;
-    for (boost::container::flat_map<std::string, double>::iterator 
-	   it = res.xderivative.tracers.begin(); 
-	 it != res.xderivative.tracers.end(); ++it)
-      {
-	it->second *= psi[4 + counter];
-	safe_retrieve(res.yderivative.tracers,it->first) *= psi[4 + counter];
-	++counter;
-      }
+    for(size_t i=0;i<res.xderivative.tracers.size();++i){
+      res.xderivative.tracers.at(i) *= psi.at(4+counter);
+      res.yderivative.tracers.at(i) *= psi.at(4+counter);
+      ++counter;
+    }
     return res;
   }
 
@@ -294,10 +294,12 @@ namespace
 	cmin.pressure = std::min(cmin.pressure, cell_temp.pressure);
 	cmin.velocity.x = std::min(cmin.velocity.x, cell_temp.velocity.x);
 	cmin.velocity.y = std::min(cmin.velocity.y, cell_temp.velocity.y);
-	for (boost::container::flat_map<std::string, double>::iterator it = cmax.tracers.begin(); it != cmax.tracers.end(); ++it)
-	  it->second = std::max(it->second, safe_retrieve(cell_temp.tracers,it->first));
-	for (boost::container::flat_map<std::string, double>::iterator it = cmin.tracers.begin(); it != cmin.tracers.end(); ++it)
-	  it->second = std::min(it->second, safe_retrieve(cell_temp.tracers,it->first));
+	for(size_t i=0;i<cmax.tracers.size();++i){
+	  cmax.tracers.at(i) = std::max
+	    (cmax.tracers.at(i), cell_temp.tracers.at(i));
+	  cmin.tracers.at(i) = std::min
+	    (cmin.tracers.at(i), cell_temp.tracers.at(i));
+	}
       }
     ComputationalCell maxdiff = cmax - cell, mindiff = cmin - cell;
     // limit the slope
@@ -332,15 +334,20 @@ namespace
 	  }
 	// tracers
 	size_t counter = 0;
-	for (boost::container::flat_map<std::string, double>::iterator it = dphi.tracers.begin(); it != dphi.tracers.end(); ++it)
+	//	for (boost::container::flat_map<std::string, double>::iterator it = dphi.tracers.begin(); it != dphi.tracers.end(); ++it)
+	for(size_t i=0;i<dphi.tracers.size();++i)
 	  {
-	    double cell_tracer = safe_retrieve(cell.tracers,it->first);
-	    double diff_tracer = safe_retrieve(maxdiff.tracers,it->first);
-	    double centroid_tracer = safe_retrieve(centroid_val.tracers,it->first);
-	    if (std::abs(it->second) > 0.1*std::max(std::abs(diff_tracer), std::abs(safe_retrieve(mindiff.tracers,it->first))) || centroid_tracer*cell_tracer < 0)
+	    double cell_tracer = cell.tracers.at(i);
+	    double diff_tracer = maxdiff.tracers.at(i);
+	    double centroid_tracer = centroid_val.tracers.at(i);
+	    if (std::abs(dphi.tracers.at(i)) > 
+		0.1*std::max(std::abs(diff_tracer), std::abs(mindiff.tracers.at(i))) || centroid_tracer*cell_tracer < 0)
 	      {
-		if (std::abs(it->second) > std::abs(1e-9*cell_tracer))
-		  psi[4 + counter] = std::min(psi[4 + counter], std::max(diffusecoeff*(safe_retrieve(neighbors[i].tracers,it->first)- cell_tracer) / it->second, 0.0));
+		if (std::abs(dphi.tracers.at(i)) > std::abs(1e-9*cell_tracer))
+		  psi.at(4 + counter) = 
+		    std::min
+		    (psi.at(4 + counter), 
+		     std::max(diffusecoeff*(neighbors[i].tracers.at(i)- cell_tracer) / dphi.tracers.at(i), 0.0));
 	      }
 	    ++counter;
 	  }
@@ -354,12 +361,11 @@ namespace
     res.xderivative.velocity.y *= psi[3];
     res.yderivative.velocity.y *= psi[3];
     size_t counter = 0;
-    for (boost::container::flat_map<std::string, double>::iterator it = res.xderivative.tracers.begin(); it != res.xderivative.tracers.end(); ++it)
-      {
-	it->second *= psi[4 + counter];
-	safe_retrieve(res.yderivative.tracers,it->first) *= psi[4 + counter];
-	++counter;
-      }
+    for(size_t i=0;i<res.xderivative.tracers.at(i);++i){
+      res.xderivative.tracers.at(i) *= psi.at(4+counter);
+      res.yderivative.tracers.at(i) *= psi.at(4+counter);
+      ++counter;
+    }
     return res;
   }
 
@@ -391,8 +397,8 @@ namespace
     naive_slope_ = naive_slope;
 
     for(size_t i=0;i<flat_tracers.size();++i){
-      naive_slope.xderivative.tracers[flat_tracers[i]] = 0;
-      naive_slope.yderivative.tracers[flat_tracers[i]] = 0;
+      naive_slope.xderivative.tracers.at(i) = 0;
+      naive_slope.yderivative.tracers.at(i) = 0;
     }
 
     if (slf)
@@ -468,25 +474,28 @@ namespace {
     c.density = 0;
     c.pressure = 0;
     c.velocity = Vector2D(0,0);
-    c.stickers["ghost"] = true;
-    for(boost::container::flat_map<string,double>::const_iterator it=
-	  sample.tracers.begin();
-	it!=sample.tracers.end();
-	++it)
-      c.tracers[it->first] = 0;
+    c.stickers.at(0) = true;
+    c.tracers = sample.tracers;
+    for(size_t i=0;i<c.tracers.size();++i)
+      c.tracers.at(i) = 0;
     return Slope(c,c);
   }
 
   ComputationalCell eos_redress
   (const ComputationalCell& c,
-   const FermiTable& eos)
+   const FermiTable& eos,
+   const TracerStickerNames& tsn)
   {
-    if(safe_retrieve(c.stickers,string("ghost")))
+    if(c.stickers.at(0))
       return c;
     ComputationalCell res = c;
     res.pressure = fmax
       (res.pressure,
-       eos.dt2p(c.density,1e5,c.tracers));
+       eos.dt2p
+       (c.density,
+	1e5,
+	c.tracers,
+	tsn.tracer_names));
     return res;       
   }
 }
@@ -506,17 +515,19 @@ void SafeLinearGauss::operator()
   (const Tessellation& tess,
    const vector<ComputationalCell>& cells,
    double time,
-   vector<pair<ComputationalCell,ComputationalCell> >& res) const
+   vector<pair<ComputationalCell,ComputationalCell> >& res,
+   const TracerStickerNames& tsn) const
 {
   const size_t CellNumber = static_cast<size_t>(tess.GetPointNo());
   // Get ghost points
-  boost::container::flat_map<size_t,ComputationalCell> ghost_cells = ghost_.operator()(tess,cells,time);
+  boost::container::flat_map<size_t,ComputationalCell> ghost_cells = 
+    ghost_(tess,cells,time,tsn);
   // Prepare slopes
   rslopes_.resize(CellNumber);
   naive_rslopes_.resize(CellNumber);
   for (size_t i = 0; i<CellNumber; ++i)
     rslopes_[i] = 
-      safe_retrieve(cells.at(i).stickers,string("ghost")) ?
+      cells.at(i).stickers.front() ?
       ghost_slope(cells.at(i)) :
       calc_slope
       (tess,
@@ -555,7 +566,8 @@ void SafeLinearGauss::operator()
 	      rslopes_,
 	      static_cast<size_t>(edge.neighbors.first),
 	      time,
-	      edge),
+	      edge,
+	      tsn),
 	     CalcCentroid(edge),
 	     tess.GetCellCM(edge.neighbors.first));
 	}
@@ -576,13 +588,14 @@ void SafeLinearGauss::operator()
 	      rslopes_, 
 	      static_cast<size_t>(edge.neighbors.second),
 	      time,
-	      edge),
+	      edge,
+	      tsn),
 	     CalcCentroid(edge),
 	     tess.GetCellCM(edge.neighbors.second));
 	}
       res[i] = cell_temp;
-      res[i].first = eos_redress(res[i].first,eos_);
-      res[i].second = eos_redress(res[i].second,eos_);
+      res[i].first = eos_redress(res[i].first,eos_,tsn);
+      res[i].second = eos_redress(res[i].second,eos_,tsn);
     }
   //	return res;
 }

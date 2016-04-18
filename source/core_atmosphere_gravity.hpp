@@ -53,7 +53,8 @@ public:
    const vector<ComputationalCell>& cells,
    const vector<Extensive>& fluxes,
    const vector<Vector2D>& point_velocities,
-   const double time) const;
+   const double time,
+   const TracerStickerNames& tsn) const;
 
   double getCoreMass(void) const;
 

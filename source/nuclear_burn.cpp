@@ -25,12 +25,13 @@ extern "C" {
 
 namespace {
 
-  pair<double,vector<double> > burn_step_wrapper(double density,
-						 double energy,
-						 double tburn,
-						 vector<double> xn,
-						 pair<double,double> az,
-						 double dt)
+  pair<double,vector<double> > burn_step_wrapper
+  (double density,
+   double energy,
+   double tburn,
+   vector<double> xn,
+   pair<double,double> az,
+   double dt)
   {
     int indexeos = 0;
     double dedtmp = 0;
@@ -127,24 +128,42 @@ void NuclearBurn::operator()(hdsim& sim)
   vector<ComputationalCell>& cells = sim.getAllCells();
   for(size_t i=0;i<cells.size();++i){
     ComputationalCell& cell = cells[i];
-    if(safe_retrieve(cell.stickers,ignore_label_))
+    if(safe_retrieve
+       (cell.stickers,
+	sim.GetTracerStickerNames().sticker_names,
+	ignore_label_))
       continue;
-    const double temperature = eos_.dp2t(cell.density,
-					 cell.pressure,
-					 cell.tracers);
-    const double energy = eos_.dp2e(cell.density,
-				    cell.pressure,
-				    cell.tracers);
+    const double temperature = eos_.dp2t
+      (cell.density,
+       cell.pressure,
+       cell.tracers,
+       sim.GetTracerStickerNames().tracer_names);
+    const double energy = eos_.dp2e
+      (cell.density,
+       cell.pressure,
+       cell.tracers,
+       sim.GetTracerStickerNames().tracer_names);
     const pair<double,vector<double> > qrec_tracers =
-      burn_step_wrapper(cell.density,energy,temperature,
-			serialize_tracers(cell.tracers,
-					  isotope_list_),
-			eos_.calcAverageAtomicProperties(cell.tracers),
-			dt);
+      burn_step_wrapper
+      (cell.density,energy,temperature,
+       /*
+       serialize_tracers
+       (cell.tracers,
+	isotope_list_),
+       */
+       cell.tracers,
+       eos_.calcAverageAtomicProperties
+       (cell.tracers,
+	sim.GetTracerStickerNames().tracer_names),
+       dt);
     total += dt*qrec_tracers.first;
     const double new_energy = energy + dt*qrec_tracers.first;
-    cell.tracers = reassemble_tracers(qrec_tracers.second,isotope_list_);
-    cell.pressure = eos_.de2p(cell.density, new_energy, cell.tracers);
+    cell.tracers = qrec_tracers.second;
+    cell.pressure = eos_.de2p
+      (cell.density,
+       new_energy,
+       cell.tracers,
+       sim.GetTracerStickerNames().tracer_names);
   }
   sim.recalculateExtensives();
   energy_history_.push_back

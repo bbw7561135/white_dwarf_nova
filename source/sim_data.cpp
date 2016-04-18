@@ -72,19 +72,18 @@ namespace{
     operator()
     (const Edge& edge,
      const Tessellation& tess,
-     const vector<ComputationalCell>& cells) const
+     const vector<ComputationalCell>& cells,
+     const TracerStickerNames& tsn) const
     {
       const size_t neighbor_1_index = 
 	static_cast<size_t>(edge.neighbors.first);
       const ComputationalCell cell_1 = cells.at(neighbor_1_index);
-      const bool cond_1 = 
-	safe_retrieve(cell_1.stickers, sticker_name_);
+      const bool cond_1 = cell_1.stickers.front();
 
       const size_t neighbor_2_index =
 	static_cast<size_t>(edge.neighbors.second);
       const ComputationalCell cell_2 = cells.at(neighbor_2_index);
-      const bool cond_2 = 
-	safe_retrieve(cell_2.stickers, sticker_name_);
+      const bool cond_2 = cell_2.stickers.front();
 
       return pair<bool,bool>(cond_1 && cond_2, false);
     }
@@ -105,7 +104,8 @@ namespace{
      const EquationOfState& eos,
      const bool aux,
      Extensive& res,
-     double time) const
+     double time,
+     const TracerStickerNames& tsn) const
     {
       res.tracers = cells.at(0).tracers;
     }
@@ -129,12 +129,13 @@ SimData::SimData(const InitialData& id,
   (process_positions(outer_),
    outer_),
   tess_
-  (distribute_grid
+  (proctess_,
+   distribute_grid
    (proctess_,
     ss ?
     ss->mesh_points :
     create_grid(outer_.getBoundary(),2e-3,0.9*id.radius_list.front())),
-    outer_),
+   outer_),
 #else
   tess_
   (ss ?
@@ -183,7 +184,7 @@ SimData::SimData(const InitialData& id,
    pg_,
    ss ?
    ss->cells :
-   calc_init_cond(tess_,eos_,id,domain),
+   calc_init_cond(tess_,eos_,id,domain).second,
    eos_,
    alt_point_motion_,
    evc_,

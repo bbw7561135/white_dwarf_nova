@@ -19,7 +19,8 @@ namespace {
   vector<pair<size_t, size_t> > get_special_interface
   (const Tessellation& tess,
    const vector<ComputationalCell>& cells,
-   const string& ghost)
+   const string& ghost,
+   const TracerStickerNames& tsn)
   {
     vector<pair<size_t, size_t> > res;
     const vector<Edge>& edge_list = tess.getAllEdges();
@@ -34,22 +35,26 @@ namespace {
 	 (cells.at
 	  (static_cast<size_t>
 	   (edge.neighbors.first)).stickers,
+	  tsn.sticker_names,
 	  ghost) &&
 	 !safe_retrieve
 	 (cells.at
 	  (static_cast<size_t>
 	   (edge.neighbors.second)).stickers,
+	  tsn.sticker_names,
 	  ghost))
 	res.push_back(pair<size_t,size_t>(i,1));
       else if(safe_retrieve
 	      (cells.at
 	       (static_cast<size_t>
 		(edge.neighbors.second)).stickers,
+	       tsn.sticker_names,
 	       ghost) &&
 	      !safe_retrieve
 	      (cells.at
 	       (static_cast<size_t>
 		(edge.neighbors.first)).stickers,
+	       tsn.sticker_names,
 	       ghost))
 	res.push_back(pair<size_t,size_t>(i,2));
     }
@@ -61,7 +66,8 @@ boost::container::flat_map<size_t, ComputationalCell>
 ReflectiveGhostThroughout::operator()
   (const Tessellation& tess,
    const vector<ComputationalCell>& cells,
-   double /*time*/) const
+   double /*time*/,
+   const TracerStickerNames& tsn) const
 {
   boost::container::flat_map<size_t, ComputationalCell> res;
   const vector<pair<size_t, size_t> > ghosts =
@@ -70,7 +76,8 @@ ReflectiveGhostThroughout::operator()
      get_special_interface
      (tess,
       cells,
-      ghost_));
+      ghost_,
+      tsn));
   for(size_t i=0;i<ghosts.size();++i){
     const Edge& edge = tess.GetEdge
       (static_cast<int>(ghosts[i].first));

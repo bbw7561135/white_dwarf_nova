@@ -16,7 +16,8 @@ public:
    const double dt,
    const CacheData& cd,
    const vector<ComputationalCell>& cells,
-   vector<Extensive>& extensive) const;
+   vector<Extensive>& extensive,
+   const TracerStickerNames& tsn) const;
 };
 
 #endif // LAZY_EXTENSIVE_UPDATER_HPP

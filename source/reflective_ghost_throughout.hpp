@@ -17,7 +17,8 @@ public:
   operator()
   (const Tessellation& tess,
    const vector<ComputationalCell>& cells,
-   double time) const;
+   double time,
+   const TracerStickerNames& tsn) const;
 
   Slope
   GetGhostGradient

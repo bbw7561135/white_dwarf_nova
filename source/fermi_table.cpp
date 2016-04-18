@@ -1,5 +1,6 @@
 #include <iostream>
 #include "fermi_table.hpp"
+#include "source/misc/utils.hpp"
 
 extern "C" {
   void init_tabular_(const char* eos_tab_file);
@@ -53,9 +54,15 @@ double FermiTable::dt2paz(double density, double temperature,
 double FermiTable::dt2p
 (double density, 
  double temperature,
- const boost::container::flat_map<string,double>& tracers) const
+ const vector<double>& tracer_values,
+ const vector<string>& tracer_names) const
 {
-  return dt2paz(density, temperature, calcAverageAtomicProperties(tracers));
+  return dt2paz
+    (density, 
+     temperature, 
+     calcAverageAtomicProperties
+     (tracer_values,
+      tracer_names));
 }
 
 double FermiTable::deaz2p(double density, double energy, std::pair<double,double> aap) const
@@ -104,17 +111,29 @@ double FermiTable::deaz2c(double density, double energy,
 double FermiTable::de2c
 (double density, 
  double energy, 
- const boost::container::flat_map<string,double>& tracers) const
+ const vector<double>& tracer_values,
+ const vector<string>& tracer_names) const
 {
-  return deaz2c(density, energy, calcAverageAtomicProperties(tracers));
+  return deaz2c
+    (density,
+     energy,
+     calcAverageAtomicProperties
+     (tracer_values,
+      tracer_names));
 }
 
 double FermiTable::de2p
 (double density, 
  double energy, 
- const boost::container::flat_map<string,double>& tracers) const
+ const vector<double>& tracer_values,
+ const vector<string>& tracer_names) const
 {
-  return deaz2p(density, energy, calcAverageAtomicProperties(tracers));
+  return deaz2p
+    (density, 
+     energy,
+     calcAverageAtomicProperties
+     (tracer_values,
+      tracer_names));
 }
 
 double FermiTable::dpaz2c(double density, double pressure,
@@ -131,25 +150,43 @@ double FermiTable::dpaz2c(double density, double pressure,
 double FermiTable::dp2c
 (double density, 
  double pressure, 
- const boost::container::flat_map<string,double>& tracers) const
+ const vector<double>& tracer_values,
+ const vector<string>& tracer_names) const
 {
-  return dpaz2c(density,pressure,calcAverageAtomicProperties(tracers));
+  return dpaz2c
+    (density,
+     pressure,
+     calcAverageAtomicProperties
+     (tracer_values,
+      tracer_names));
 }
 
 double FermiTable::dp2e
 (double density,
  double pressure,
- const boost::container::flat_map<string,double>& tracers) const
+ const vector<double>& tracer_values,
+ const vector<string>& tracer_names) const
 {
-  return dpaz2e(density,pressure,calcAverageAtomicProperties(tracers));
+  return dpaz2e
+    (density,
+     pressure,
+     calcAverageAtomicProperties
+     (tracer_values,
+      tracer_names));
 }
 
 double FermiTable::dp2t
 (double density, 
  double pressure, 
- const boost::container::flat_map<string,double>& tracers) const
+ const vector<double>& tracer_values,
+ const vector<string>& tracer_names) const
 {
-  return dpaz2t(density,pressure,calcAverageAtomicProperties(tracers));
+  return dpaz2t
+    (density,
+     pressure,
+     calcAverageAtomicProperties
+     (tracer_values,
+      tracer_names));
 }
 
 double FermiTable::dt2e(double density, double temperature,
@@ -249,7 +286,8 @@ void FermiTable::calcThermoVars(Mode mode,
 }
 
 std::pair<double,double> FermiTable::calcAverageAtomicProperties
-(const boost::container::flat_map<string,double>& tracers) const
+(const vector<double>& tracer_values,
+ const vector<string>& tracer_names) const
 {
   double total = 0;
   double aa = 0;
@@ -257,8 +295,12 @@ std::pair<double,double> FermiTable::calcAverageAtomicProperties
   for(boost::container::flat_map<string,std::pair<double,double> >::const_iterator it=
 	atomic_properties_.begin();
       it!=atomic_properties_.end();++it){
-    assert(tracers.count(it->first)==1);
-    const double mass_frac = tracers.find(it->first)->second;
+    //    assert(tracers.count(it->first)==1);
+    const double mass_frac = 
+      safe_retrieve
+      (tracer_values,
+       tracer_names,
+       it->first);
     const double A = it->second.first;
     const double Z = it->second.second;
     total += mass_frac;
@@ -271,7 +313,8 @@ std::pair<double,double> FermiTable::calcAverageAtomicProperties
 double FermiTable::dp2s
 (double /*density*/, 
  double /*pressure*/,
- const boost::container::flat_map<string,double>& /*tracers*/) const
+ const vector<double>& /*tracer_values*/,
+ const vector<string>& /*tracer_names*/) const
 {
   throw "Method not implemented";
 }
@@ -279,7 +322,8 @@ double FermiTable::dp2s
 double FermiTable::sd2p
 (double /*entropy*/,
  double /*density*/,
- const boost::container::flat_map<string,double>& /*tracers*/) const
+ const vector<double>& /*tracer_values*/,
+ const vector<string>& /*tracer_names*/) const
 {
   throw "Method not implemented";
 }

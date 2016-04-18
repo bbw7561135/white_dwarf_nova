@@ -14,11 +14,15 @@ vector<double> EnergyAppendix::operator()(const hdsim& sim) const
   vector<double> res(cells.size(), 1);
   for(size_t i=0;i<res.size();++i){
     const ComputationalCell& cell = cells[i];
-    if(safe_retrieve(cell.stickers,string("ghost")))
+    if(safe_retrieve
+       (cell.stickers,
+	sim.GetTracerStickerNames().sticker_names,
+	string("ghost")))
       continue;
     res[i] = eos_.dp2e(cell.density,
 		       cell.pressure,
-		       cell.tracers);
+		       cell.tracers,
+		       sim.GetTracerStickerNames().tracer_names);
   }
   return res;
 }

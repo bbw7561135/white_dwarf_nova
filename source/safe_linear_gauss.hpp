@@ -39,7 +39,8 @@ public:
 	(const Tessellation& tess,
 	 const vector<ComputationalCell>& cells,
 	 double time,
-	 vector<pair<ComputationalCell, ComputationalCell> >& res) const;
+	 vector<pair<ComputationalCell, ComputationalCell> >& res,
+	 const TracerStickerNames& tsn) const;
 
 	/*! \brief Interpolates a cell
 	\param cell The primitives of the cell

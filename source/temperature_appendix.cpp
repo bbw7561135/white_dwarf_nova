@@ -14,11 +14,13 @@ vector<double> TemperatureAppendix::operator()(const hdsim& sim) const
   vector<double> temperatures(cells.size(),1);
   for(size_t i=0;i<cells.size();++i){
     const ComputationalCell& cell = cells[i];
-    if(safe_retrieve(cell.stickers,string("ghost")))
+    if(cell.stickers.front())
       continue;
-    temperatures[i] = eos_.dp2t(cell.density,
-			       cell.pressure,
-			       cell.tracers);
+    temperatures[i] = eos_.dp2t
+      (cell.density,
+       cell.pressure,
+       cell.tracers,
+       sim.GetTracerStickerNames().tracer_names);
   }
   return temperatures;
 }

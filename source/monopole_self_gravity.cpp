@@ -2,13 +2,18 @@
 #include "interpolator.hpp"
 
 namespace {
-  vector<pair<double,double> > calc_mass_radius_list(const Tessellation& tess,
-						     const vector<ComputationalCell>& cells,
-						     const CacheData& cd)
+  vector<pair<double,double> > calc_mass_radius_list
+  (const Tessellation& tess,
+   const vector<ComputationalCell>& cells,
+   const CacheData& cd,
+   const TracerStickerNames& tsn)
   {
     vector<pair<double, double> > res;
     for(size_t i=0;i<cells.size();++i){
-      if(cells[i].stickers.find("ghost")->second)
+      if(safe_retrieve
+	 (cells.at(i).stickers,
+	  tsn.sticker_names,
+	  string("ghost")))
 	continue;
       const double radius = abs(tess.GetCellCM(static_cast<int>(i)));
       const double mass = cd.volumes[i]*cells[i].density;
@@ -52,17 +57,26 @@ vector<Extensive> MonopoleSelfGravity::operator()
    const vector<ComputationalCell>& cells,
    const vector<Extensive>& /*fluxes*/,
    const vector<Vector2D>& /*point_velocities*/,
-   const double /*t*/) const
+   const double /*t*/,
+   const TracerStickerNames& tsn) const
 {
   const vector<double> mass_sample =
-    calc_mass_in_shells(calc_mass_radius_list(tess,cells,cd),
-			sample_radii_);
+    calc_mass_in_shells
+    (calc_mass_radius_list
+     (tess,
+      cells,
+      cd,
+      tsn),
+     sample_radii_);
   const Interpolator radius_mass_interp(sample_radii_,
 					mass_sample);
 
   vector<Extensive> res(static_cast<size_t>(tess.GetPointNo()));
   for(size_t i=0;i<res.size();++i){
-    if(cells[i].stickers.find("ghost")->second)
+    if(safe_retrieve
+       (cells.at(i).stickers,
+	tsn.sticker_names,
+	string("ghost")))
       continue;
     const Vector2D r = tess.GetCellCM(static_cast<int>(i));
     const double radius = abs(r);

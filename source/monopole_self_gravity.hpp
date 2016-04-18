@@ -18,7 +18,8 @@ public:
    const vector<ComputationalCell>& cells,
    const vector<Extensive>& /*fluxes*/,
    const vector<Vector2D>& /*point_velocities*/,
-   const double /*t*/) const;
+   const double /*t*/,
+   const TracerStickerNames& tsn) const;
 
 private:
   const vector<double> sample_radii_;

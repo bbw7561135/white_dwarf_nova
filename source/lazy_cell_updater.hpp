@@ -15,7 +15,8 @@ public:
    const EquationOfState& eos,
    vector<Extensive>& extensives,
    const vector<ComputationalCell>& old,
-   const CacheData& cd) const;
+   const CacheData& cd,
+   const TracerStickerNames& tsn) const;
 };
 
 #endif // LAZY_CELL_UPDATER_HPP

@@ -49,18 +49,15 @@ namespace {
 	static_cast<size_t>(edge.neighbors.first);
       const size_t right_index =
 	static_cast<size_t>(edge.neighbors.second);
-      if(safe_retrieve(cells.at(left_index).stickers,
-		       string("ghost")) &&
-	 !safe_retrieve(cells.at(right_index).stickers,
-			string("ghost")) &&
+      if(cells.at(left_index).stickers.front() &&
+	 cells.at(right_index).stickers.front() &&
 	 point_above_edge(tess.GetCellCM(edge.neighbors.second),
 			  edge))
 	res.push_back(right_index);
       else if
-	(safe_retrieve(cells.at(right_index).stickers,
-		       string("ghost")) &&
-	 !safe_retrieve(cells.at(left_index).stickers,
-			string("ghost")) &&
+	(
+	 cells.at(right_index).stickers.front() &&
+	 cells.at(left_index).stickers.front() &&
 	 point_above_edge(tess.GetCellCM(edge.neighbors.first),
 			  edge))
 	res.push_back(left_index);
