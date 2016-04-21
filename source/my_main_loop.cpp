@@ -20,12 +20,19 @@ using namespace simulation2d;
 
 void my_main_loop(hdsim& sim, const FermiTable& eos, bool rerun)
 {
-  write_snapshot_to_hdf5(sim,rerun ? "rerun_initial.h5" : "initial.h5",
-			 vector<DiagnosticAppendix*>
-			 (1,new TemperatureAppendix(eos)));
  #ifdef RICH_MPI
 	 int rank=0;
 	 MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+  write_snapshot_to_hdf5
+    (sim,
+     (rerun ? "rerun_initial" : "initial")+
+     string("_")+int2str(rank)+".h5",
+     vector<DiagnosticAppendix*>
+     (1,new TemperatureAppendix(eos)));
+#else
+  write_snapshot_to_hdf5(sim,rerun ? "rerun_initial.h5" : "initial.h5",
+			 vector<DiagnosticAppendix*>
+			 (1,new TemperatureAppendix(eos)));
 #endif //RICH_MPI
 const double tf = 10;
 //const double tf = 0.09;
