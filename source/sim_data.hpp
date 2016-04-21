@@ -30,6 +30,9 @@
 #include "source/newtonian/two_dimensional/point_motions/eulerian.hpp"
 #include "source/newtonian/two_dimensional/point_motions/lagrangian.hpp"
 #include "source/newtonian/two_dimensional/condition_action_sequence.hpp"
+#ifdef RICH_MPI
+#include "source/mpi/SetLoad.hpp"
+#endif // RICH_MPI
 
 class SimData
 {
@@ -65,6 +68,9 @@ VoronoiMesh proctess_;
   const SimpleCellUpdater cu_;
   const pair<TracerStickerNames, vector<ComputationalCell> >
   init_cond_;
+#ifdef RICH_MPI
+  ConstNumberPerProc procupdate_;
+#endif // RICH_MPI
   hdsim sim_;
 };
 

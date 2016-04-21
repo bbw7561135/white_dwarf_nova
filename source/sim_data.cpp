@@ -175,6 +175,9 @@ SimData::SimData(const InitialData& id,
   (VectorInitialiser<scupp>
    (scupp(new HasSticker("ghost"), new SkipUpdate))()),
   init_cond_(calc_init_cond(tess_,eos_,id,domain)),
+  #ifdef RICH_MPI
+  procupdate_(outer_),
+  #endif //RICH_MPI
   sim_
   (
 #ifdef RICH_MPI
@@ -194,7 +197,12 @@ SimData::SimData(const InitialData& id,
    fc_,
    eu_,
    cu_,
-   init_cond_.first) 
+   init_cond_.first
+   #ifdef RICH_MPI
+   ,
+   &procupdate_
+#endif // RICH_MPI
+   ) 
 {
   if(ss){
     sim_.setStartTime(ss->time);
