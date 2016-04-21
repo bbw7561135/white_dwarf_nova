@@ -23,9 +23,11 @@ vector<Vector2D> create_grid(const pair<Vector2D,Vector2D>& boundaries,
   }
   //    res = rectangular_clip(res,rectangle_stretch(boundaries,0.99));
   res = clip_grid (RightRectangle(rectangle_stretch(boundaries,0.99)),res);
+  /*
   ofstream f("mesh_points.txt");
   for(size_t i=0;i<res.size();++i)
     f << res.at(i).x << " " << res.at(i).y << endl;
   f.close();
+  */
   return res;
 }
