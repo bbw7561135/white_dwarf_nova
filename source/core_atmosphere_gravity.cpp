@@ -1,4 +1,7 @@
 #include "core_atmosphere_gravity.hpp"
+#ifdef RICH_MPI
+#include <mpi.h>
+#endif //RICH_MPI
 
 namespace {
   vector<pair<double,double> > calc_mass_radius_list
@@ -8,7 +11,8 @@ namespace {
    const CacheData& cd)
   {
     vector<pair<double, double> > res;
-    for(size_t i=0;i<cells.size();++i){
+	size_t Nloop=static_cast<size_t>(tess.GetPointNo());
+    for(size_t i=0;i<Nloop;++i){
       if(safe_retrieve
 	 (cells.at(i).stickers,
 	  tsn.sticker_names,
@@ -36,6 +40,12 @@ namespace {
 	}
       }
     }
+#ifdef RICH_MPI
+	vector<double> mpires(res.size());
+	MPI_Allreduce(&res[0], &mpires[0],static_cast<int>(mpires.size()),MPI_DOUBLE,
+		MPI_SUM,MPI_COMM_WORLD);
+	res=mpires;
+#endif //RICH_MPI
     return res;
   }
 
