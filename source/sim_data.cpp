@@ -172,8 +172,7 @@ SimData::SimData(const InitialData& id,
    ()),
   eu_(),
   cu_
-  (VectorInitialiser<scupp>
-   (scupp(new HasSticker("ghost"), new SkipUpdate))()),
+  (string("Temperature"),eos_),
   init_cond_(calc_init_cond(tess_,eos_,id,domain)),
   #ifdef RICH_MPI
   procupdate_(outer_),

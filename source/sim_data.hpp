@@ -30,6 +30,7 @@
 #include "source/newtonian/two_dimensional/point_motions/eulerian.hpp"
 #include "source/newtonian/two_dimensional/point_motions/lagrangian.hpp"
 #include "source/newtonian/two_dimensional/condition_action_sequence.hpp"
+#include "temperature_cell_updater.hpp"
 #ifdef RICH_MPI
 #include "source/mpi/SetLoad.hpp"
 #endif // RICH_MPI
@@ -65,7 +66,7 @@ VoronoiMesh proctess_;
   const SimpleCFL tsf_;
   const ConditionActionSequence fc_;
   const SimpleExtensiveUpdater eu_;
-  const SimpleCellUpdater cu_;
+  const TemperatureCellUpdater cu_;
   const pair<TracerStickerNames, vector<ComputationalCell> >
   init_cond_;
 #ifdef RICH_MPI
