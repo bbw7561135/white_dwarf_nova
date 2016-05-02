@@ -27,13 +27,15 @@ public:
     \param im_gas Gas contribution
     \param im_photons Radiation contribution
     \param im_coulomb Electrostatic contribution
+	\param fast_calc Calculates everything from temperature that is given in tracers
    */
   FermiTable
   (const string& tab_file,
    const int im_gas,
    const int im_photons,
    const int im_coulomb,
-   const boost::container::flat_map<string,pair<double,double> >& atomic_properties);
+   const boost::container::flat_map<string,pair<double,double> >& atomic_properties,
+   bool fast_calc = true);
 
   /*! \brief Calculates the pressure
     \param density Density
@@ -66,7 +68,8 @@ public:
     \param aap Average atomic properties
     \return Temperature
    */
-  double de2t(double density, double energy, std::pair<double,double> aap) const;
+  double de2t(double density, double energy,  const vector<double>& tracer_values,
+   const vector<string>& tracer_names) const;
 
   /*! \brief Calculates the pressure
     \param density Density
@@ -113,10 +116,18 @@ public:
   double dpaz2c(double density, double pressure, std::pair<double, double> aap) const;
 
   double dpaz2t(double density, double pressure, pair<double,double> aap) const;
+  
+  double dtaz2c(double density, double temperature,pair<double, double> aap) const;
 
   double dp2c
   (double density, 
    double pressure, 
+   const vector<double>& tracer_values,
+   const vector<string>& tracer_names) const;
+   
+   double dt2c
+  (double density, 
+   double temperature, 
    const vector<double>& tracer_values,
    const vector<string>& tracer_names) const;
 
@@ -182,11 +193,15 @@ public:
 
   const boost::container::flat_map<string,pair<double,double> >& getAtomicProperties(void) const;
 
+  void index_check(vector<string> const& names) const;
 private:
   mutable int im_gas_;
   mutable int im_photons_;
   mutable int im_coulomb_;
   const boost::container::flat_map<string,std::pair<double,double> > atomic_properties_;
+  const bool fast_calc_;
+  mutable int temperature_index_;
+  void index_check(vector<string> const& names);
 };
 
 #endif // FERMI_TABLE_HPP

@@ -120,45 +120,74 @@ NuclearBurn::NuclearBurn
   initnet_(rfile.c_str());
 }
 
+namespace
+{
+	vector<double> trim_tracers(vector<double> const& tracers,vector<size_t> const& indeces)
+	{
+		size_t N=indeces.size();
+		vector<double> res(N);
+		for(size_t i=0;i<N;++i)
+			res[i]=tracers[indeces[i]];
+		return res;
+	}
+	
+	void update_tracers(vector<double> &tracers,vector<size_t> const& indeces,vector<double> const& trimed_vector)
+	{
+		size_t N=indeces.size();
+		for(size_t i=0;i<N;++i)
+			tracers[indeces[i]]=trimed_vector[i];
+	}
+}
+
 void NuclearBurn::operator()(hdsim& sim)
 {
   const double dt = sim.getTime() - t_prev_;
   t_prev_ = sim.getTime();
   double total = 0;
   vector<ComputationalCell>& cells = sim.getAllCells();
-  for(size_t i=0;i<cells.size();++i){
+  vector<Extensive> extensives = sim.getAllExtensives();
+  size_t Nloop = static_cast<size_t>(sim.getTessellation().GetPointNo());
+  
+  vector<size_t> fortran_indeces(isotope_list_.size());
+  TracerStickerNames tracerstickernames =  sim.GetTracerStickerNames();
+  for(size_t i=0;i<fortran_indeces.size();++i)
+  {
+	  vector<string>::const_iterator it = binary_find(tracerstickernames.tracer_names.begin(),
+			tracerstickernames.tracer_names.end(), isotope_list_[i]);
+	  assert(it != tracerstickernames.tracer_names.end());
+	  fortran_indeces.at(i) = static_cast<size_t>(it - tracerstickernames.tracer_names.begin());
+  }
+  vector<string>::const_iterator it2 = binary_find(tracerstickernames.tracer_names.begin(),
+			tracerstickernames.tracer_names.end(), string("Temperature"));
+  assert(it2 != tracerstickernames.tracer_names.end());
+  size_t temperature_index = static_cast<size_t>(it2-tracerstickernames.tracer_names.begin());
+  
+  for(size_t i=0;i<Nloop;++i)
+  {
     ComputationalCell& cell = cells[i];
     if(safe_retrieve
        (cell.stickers,
 	sim.GetTracerStickerNames().sticker_names,
 	ignore_label_))
       continue;
-    const double temperature = eos_.dp2t
-      (cell.density,
-       cell.pressure,
-       cell.tracers,
-       sim.GetTracerStickerNames().tracer_names);
-    const double energy = eos_.dp2e
-      (cell.density,
-       cell.pressure,
-       cell.tracers,
-       sim.GetTracerStickerNames().tracer_names);
+    const double energy = (extensives[i].energy-0.5*ScalarProd(extensives[i].momentum,extensives[i].momentum)/extensives[i].mass)
+		/extensives[i].mass;
+	 	   
     const pair<double,vector<double> > qrec_tracers =
       burn_step_wrapper
-      (cell.density,energy,temperature,
-       /*
-       serialize_tracers
-       (cell.tracers,
-	isotope_list_),
-       */
-       cell.tracers,
+      (cell.density,energy,cell.tracers[temperature_index],
+		trim_tracers(cell.tracers,fortran_indeces),
+       //cell.tracers,
        eos_.calcAverageAtomicProperties
        (cell.tracers,
 	sim.GetTracerStickerNames().tracer_names),
        dt);
     total += dt*qrec_tracers.first;
     const double new_energy = energy + dt*qrec_tracers.first;
-    cell.tracers = qrec_tracers.second;
+	
+    update_tracers(cell.tracers,fortran_indeces,qrec_tracers.second);
+	const double temperature_new = eos_.de2t(cell.density, new_energy, cell.tracers, sim.GetTracerStickerNames().tracer_names);
+ 	cell.tracers[temperature_index]=temperature_new;
     cell.pressure = eos_.de2p
       (cell.density,
        new_energy,

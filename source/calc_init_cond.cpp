@@ -32,6 +32,7 @@ calc_init_cond(const Tessellation& tess,
       it!=tracer_intepolators.end();
       ++it)
     res_2.tracer_names.push_back(it->first);
+  res_2.tracer_names.push_back("Temperature");
   sort(res_2.tracer_names.begin(), 
        res_2.tracer_names.end());
   for(size_t i=0;i<res.size();++i){
@@ -57,8 +58,10 @@ calc_init_cond(const Tessellation& tess,
 				  res_2.tracer_names);
     const Vector2D r = tess.GetCellCM(static_cast<int>(i));
     const double radius = abs(r);
+	safe_retrieve(res.at(i).tracers,res_2.tracer_names,string("Temperature")) = 1e6;
     if(!cd(r))
       continue;
+	safe_retrieve(res.at(i).tracers,res_2.tracer_names,string("Temperature")) = temperature_interpolator(radius);
     safe_retrieve
       (res.at(i).stickers,
        res_2.sticker_names,

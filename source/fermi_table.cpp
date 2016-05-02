@@ -30,14 +30,27 @@ FermiTable::FermiTable
  const int im_gas,
  const int im_photons,
  const int im_coulomb,
- const boost::container::flat_map<string,pair<double,double> >& atomic_properties):
+ const boost::container::flat_map<string,pair<double,double> >& atomic_properties,
+ bool fast_calc):
   im_gas_(im_gas),
   im_photons_(im_photons),
   im_coulomb_(im_coulomb),
-  atomic_properties_(atomic_properties)
+  atomic_properties_(atomic_properties),
+  fast_calc_(fast_calc),
+  temperature_index_(-1)
 {
   assert(tab_file.size()<80);
   init_tabular_(tab_file.c_str());
+}
+
+void FermiTable::index_check(vector<string> const& names) const
+{
+	if(temperature_index_<0 || names[static_cast<size_t>(temperature_index_)]!=string("Temperature"))
+	{
+		vector<string>::const_iterator it =find(names.begin(),names.end(), string("Temperature"));
+		assert(it != names.end());
+		temperature_index_ = it - names.begin();
+	}
 }
 
 double FermiTable::dt2paz(double density, double temperature,
@@ -108,12 +121,34 @@ double FermiTable::deaz2c(double density, double energy,
 			     &ThermodynamicVariables::sound_speed);
 }
 
+ double FermiTable::de2t
+(double density, 
+ double energy, 
+ const vector<double>& tracer_values,
+ const vector<string>& tracer_names) const
+ {
+ return calcSingleThermoVar(std::pair<double,double ThermodynamicVariables::*>
+			     (density,&ThermodynamicVariables::density),
+			     std::pair<double,double ThermodynamicVariables::*>
+			     (energy,&ThermodynamicVariables::energy),
+			     calcAverageAtomicProperties(tracer_values,tracer_names),
+			     &ThermodynamicVariables::temperature);
+ }
+
+
 double FermiTable::de2c
 (double density, 
  double energy, 
  const vector<double>& tracer_values,
  const vector<string>& tracer_names) const
 {
+	if(fast_calc_)
+	{
+		index_check(tracer_names);
+		double t = tracer_values[temperature_index_];
+		return dt2c(density,t,tracer_values,tracer_names);
+	}
+
   return deaz2c
     (density,
      energy,
@@ -128,6 +163,13 @@ double FermiTable::de2p
  const vector<double>& tracer_values,
  const vector<string>& tracer_names) const
 {
+	if(fast_calc_)
+	{
+		index_check(tracer_names);
+		double t = tracer_values[temperature_index_];
+		return dt2p(density,t,tracer_values,tracer_names);
+	}
+
   return deaz2p
     (density, 
      energy,
@@ -153,6 +195,13 @@ double FermiTable::dp2c
  const vector<double>& tracer_values,
  const vector<string>& tracer_names) const
 {
+	if(fast_calc_)
+	{
+		index_check(tracer_names);
+		double t = tracer_values[temperature_index_];
+		return dt2c(density,t,tracer_values,tracer_names);
+	}
+
   return dpaz2c
     (density,
      pressure,
@@ -161,12 +210,43 @@ double FermiTable::dp2c
       tracer_names));
 }
 
+double FermiTable::dt2c
+(double density, 
+ double temperature, 
+ const vector<double>& tracer_values,
+ const vector<string>& tracer_names) const
+{
+  return dtaz2c
+    (density,
+     temperature,
+     calcAverageAtomicProperties
+     (tracer_values,
+      tracer_names));
+}
+
+double FermiTable::dtaz2c(double density, double temperature,
+			std::pair<double, double> aap) const
+{
+  return calcSingleThermoVar(std::pair<double,double ThermodynamicVariables::*>
+			     (density,&ThermodynamicVariables::density),
+			     std::pair<double,double ThermodynamicVariables::*>
+			     (temperature,&ThermodynamicVariables::temperature),
+			     aap,
+			     &ThermodynamicVariables::sound_speed);
+}
+
 double FermiTable::dp2e
 (double density,
  double pressure,
  const vector<double>& tracer_values,
  const vector<string>& tracer_names) const
 {
+	if(fast_calc_)
+	{
+		index_check(tracer_names);
+		double t = tracer_values[temperature_index_];
+		return dt2e(density,t,calcAverageAtomicProperties(tracer_values,tracer_names));
+	}
   return dpaz2e
     (density,
      pressure,
@@ -181,6 +261,11 @@ double FermiTable::dp2t
  const vector<double>& tracer_values,
  const vector<string>& tracer_names) const
 {
+	if(fast_calc_)
+	{
+		index_check(tracer_names);
+		return tracer_values[temperature_index_];
+	}
   return dpaz2t
     (density,
      pressure,
