@@ -29,8 +29,9 @@
 #include "source/newtonian/two_dimensional/stationary_box.hpp"
 #include "source/newtonian/two_dimensional/point_motions/eulerian.hpp"
 #include "source/newtonian/two_dimensional/point_motions/lagrangian.hpp"
-#include "source/newtonian/two_dimensional/condition_action_sequence.hpp"
+#include "source/newtonian/two_dimensional/condition_action_sequence_2.hpp"
 #include "temperature_cell_updater.hpp"
+#include "source/newtonian/two_dimensional/interpolations/LinearGaussImproved.hpp"
 #ifdef RICH_MPI
 #include "source/mpi/SetLoad.hpp"
 #endif // RICH_MPI
@@ -60,11 +61,13 @@ VoronoiMesh proctess_;
   Eulerian alt_point_motion_;
   Lagrangian point_motion_;
   const StationaryBox evc_;
+  RigidWallGenerator ghosts_;
+  LinearGaussImproved interp_;
   CoreAtmosphereGravity cag_;
   CylindricalComplementary geom_force_;
   SeveralSources force_;
   const SimpleCFL tsf_;
-  const ConditionActionSequence fc_;
+  const ConditionActionSequence2 fc_;
   const SimpleExtensiveUpdater eu_;
   const TemperatureCellUpdater cu_;
   const pair<TracerStickerNames, vector<ComputationalCell> >

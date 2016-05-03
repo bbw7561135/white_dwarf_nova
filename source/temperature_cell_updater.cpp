@@ -64,6 +64,8 @@ vector<ComputationalCell> TemperatureCellUpdater::operator()
 	{
 		if(!safe_retrieve(old[i].stickers,tracerstickernames.sticker_names,ghost_))
 			update_single(fermi_eos_, extensives, old[i], cd, i, res[i], temperature_loc_,tracerstickernames);
+		else
+			res[i]=old[i];
 	}
 	return res;
 }

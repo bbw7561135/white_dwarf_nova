@@ -57,6 +57,9 @@ namespace {
 typedef pair<const ConditionActionSequence::Condition*,
 	     const ConditionActionSequence::Action*> capp;
 
+typedef pair<const ConditionActionSequence::Condition*,
+	     const ConditionActionSequence2::Action2*> capp2;
+		 
 typedef pair<const SimpleCellUpdater::Condition*,
 	     const SimpleCellUpdater::Action*> scupp;
 
@@ -148,6 +151,8 @@ SimData::SimData(const InitialData& id,
   alt_point_motion_(),
   point_motion_(),
   evc_(),
+  ghosts_(),
+  interp_(eos_,ghosts_),
   cag_
   (u.core_mass,
    linspace(id.radius_list.front(),id.radius_list.back(),100),
@@ -164,12 +169,13 @@ SimData::SimData(const InitialData& id,
    (capp(new IsBoundaryEdge,
 	 new RigidWallFlux(rs_)))
    (capp(new BothSpecial("ghost"),
-	 new ZeroFlux))
-   (capp(new RegularSpecialEdge("ghost"), 
-	 new RigidWallFlux(rs_)))
-   (capp(new IsBulkEdge,
-	 new RegularFlux(rs_)))
-   ()),
+	 new ZeroFlux))(),
+   VectorInitialiser<capp2>
+   (capp2(new RegularSpecialEdge("ghost"), 
+	 new RigidWallFlux2(rs_)))
+   (capp2(new IsBulkEdge,
+	 new RegularFlux2(rs_)))(),
+   interp_),
   eu_(),
   cu_
   (string("Temperature"),eos_),
