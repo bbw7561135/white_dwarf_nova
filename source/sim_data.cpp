@@ -43,7 +43,7 @@ namespace {
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
 	vector<Vector2D> vertices;
-	ConvexHull(vertices,tess,rank);
+	ConvexHull(vertices,proc_tess,rank);
     vector<Vector2D> res;
     BOOST_FOREACH(const Vector2D& p, complete)
 	{
