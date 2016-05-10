@@ -173,10 +173,11 @@ void NuclearBurn::operator()(hdsim& sim)
     const double energy = (extensives[i].energy-0.5*ScalarProd(extensives[i].momentum,extensives[i].momentum)/extensives[i].mass)
 		/extensives[i].mass;
 	 	   
-    const pair<double,vector<double> > qrec_tracers =
+	vector<double> trimmed_tracers = trim_tracers(cell.tracers,fortran_indeces);
+    const pair<double,vector<double> > qrec_tracers = 
       burn_step_wrapper
       (cell.density,energy,cell.tracers[temperature_index],
-		trim_tracers(cell.tracers,fortran_indeces),
+		trimmed_tracers,
        //cell.tracers,
        eos_.calcAverageAtomicProperties
        (cell.tracers,

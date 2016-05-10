@@ -41,11 +41,11 @@ const double tf = 10;
     [new ConsecutiveSnapshots
      (new ConstantTimeInterval(tf/100),
 	 //(new ConstantTimeInterval(tf*2),
-	 #ifdef RICH_MPI
-      new Rubric((rerun ? "rerun_snapshot_" : "snapshot_")+string("rank_")+int2str(rank)+"_",".h5"),
-	 #else
+//	 #ifdef RICH_MPI
+  //    new Rubric((rerun ? "rerun_snapshot_" : "snapshot_")+string("rank_")+int2str(rank)+"_",".h5"),
+	// #else
       new Rubric(rerun ? "rerun_snapshot_" : "snapshot_",".h5"),
-	  #endif
+	  //#endif
       VectorInitialiser<DiagnosticAppendix*>
       (new TemperatureAppendix(eos))
       (new EnergyAppendix(eos))

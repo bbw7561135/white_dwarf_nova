@@ -36,6 +36,7 @@ namespace
 			throw;
 		}
 	}
+
 }
 
 TemperatureCellUpdater::TemperatureCellUpdater(string tracername,FermiTable const& fermi_eos)

@@ -27,3 +27,14 @@ double Interpolator::operator()(double x) const
   }
   throw "point outside bound";
 }
+
+Interpolator& Interpolator::operator=(Interpolator const& other)
+{
+	if (this == &other)
+		return *this;
+	x_list_ = other.x_list_;
+	y_list_ = other.y_list_;
+	return *this;
+}
+
+Interpolator::Interpolator(void) :x_list_(vector<double>()), y_list_(vector<double>()) {}

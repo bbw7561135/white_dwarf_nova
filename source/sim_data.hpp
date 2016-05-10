@@ -22,7 +22,8 @@
 #include "calc_init_cond.hpp"
 #include "core_atmosphere_gravity.hpp"
 #include "source/newtonian/two_dimensional/modular_flux_calculator.hpp"
-#include "source/newtonian/two_dimensional/ghost_point_generators/RigidWallGenerator.hpp"
+//#include "source/newtonian/two_dimensional/ghost_point_generators/RigidWallGenerator.hpp"
+#include "rigid_sides.hpp"
 #include "safe_linear_gauss.hpp"
 #include "reflective_ghost_throughout.hpp"
 #include "source/newtonian/two_dimensional/hdf5_diagnostics.hpp"
@@ -61,7 +62,7 @@ VoronoiMesh proctess_;
   Eulerian alt_point_motion_;
   Lagrangian point_motion_;
   const StationaryBox evc_;
-  RigidWallGenerator ghosts_;
+  RigidSides ghosts_;
   LinearGaussImproved interp_;
   CoreAtmosphereGravity cag_;
   CylindricalComplementary geom_force_;

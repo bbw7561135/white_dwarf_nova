@@ -42,11 +42,13 @@ namespace {
   {
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+	vector<Vector2D> vertices;
+	ConvexHull(vertices,tess,rank);
     vector<Vector2D> res;
-    BOOST_FOREACH(const Vector2D& p, complete){
-      if(static_cast<size_t>(rank)==
-	 sort_point(proc_tess,p))
-	res.push_back(p);
+    BOOST_FOREACH(const Vector2D& p, complete)
+	{
+		if(PointInCell(vertices,p))
+			res.push_back(p);
     }
     return res;
   }
