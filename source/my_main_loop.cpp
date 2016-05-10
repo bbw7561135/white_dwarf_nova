@@ -50,9 +50,15 @@ const double tf = 10;
       (new TemperatureAppendix(eos))
       (new EnergyAppendix(eos))
       (new VolumeAppendix())())]
+#ifdef RICH_MPI
+    [new WriteTime((rerun ? "rerun_" : "") +string("time_rank_")+int2str(rank)+".txt")]
+    [new WriteCycle((rerun ? "rerun_" : "")+string("cycle_rank_")+int2str(rank)+".txt")]
+    [new FilteredConserved((rerun ? "rerun_" : "")+string("total_conserved_rank_")+int2str(rank)+".txt")]
+#else
     [new WriteTime(rerun ? "rerun_time.txt" : "time.txt")]
     [new WriteCycle(rerun ? "rerun_cycle.txt" : "cycle.txt")]
     [new FilteredConserved(rerun ? "rerun_total_conserved.txt" :"total_conserved.txt")]
+#endif
     ();
   MultipleDiagnostics diag(diag_list);
   MultipleManipulation manip
@@ -62,7 +68,11 @@ const double tf = 10;
       (string("alpha_table"),
        string("ghost"),
        eos,
+#ifdef RICH_MPI
+       string((rerun ? "rerun_":"")+string("burn_energy_history_rank_")+int2str(rank)+".txt")))
+#else
        string(rerun ? "rerun_burn_energy_history.txt" : "burn_energy_history.txt")))
+#endif // RICH_MPI
      ());
     main_loop(sim,
 	    term_cond,
