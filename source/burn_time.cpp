@@ -3,10 +3,10 @@
 /*
 #include "simple_cfl.hpp"
 #include "hydrodynamics_2d.hpp"
+*/
 #ifdef RICH_MPI
 #include <mpi.h>
 #endif
-*/
 
 BurnTime::BurnTime
 (const double cfl,const double eps): 

@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
 				   0.54*M_PI),
 		   argc>1 ? new Snapshot(read_hdf5_snapshot(argv[1])) : 0);
   hdsim& sim = sim_data.getSim();
-  my_main_loop(sim,sim_data.getEOS(),argc>1);
+  my_main_loop(sim,sim_data.getEOS(),sim_data.getTSF(),argc>1);
 
   const clock_t end = clock();
   ofstream f("wall_time.txt");

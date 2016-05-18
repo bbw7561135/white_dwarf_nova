@@ -87,7 +87,7 @@ const double tf = 12;
   SafeTimeTermination term_cond(tf, 1e6);
   vector<DiagnosticFunction*> diag_list = VectorInitialiser<DiagnosticFunction*>()
     [new ConsecutiveSnapshots
-     (new ImprovedConstantTimeInterval(tf/300),
+     (new ImprovedConstantTimeInterval(tf/3000000),
       new Rubric(rerun ? "rerun_snapshot_" : "snapshot_",".h5"),
       VectorInitialiser<DiagnosticAppendix*>
       (new TemperatureAppendix(eos))
@@ -107,7 +107,7 @@ const double tf = 12;
   MultipleManipulation manip
     (VectorInitialiser<Manipulate*>
      (new AtlasSupport())
-     (nb)
+     //(nb)
      ());
     main_loop(sim,
 	    term_cond,
