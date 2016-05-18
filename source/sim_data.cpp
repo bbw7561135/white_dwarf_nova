@@ -124,7 +124,7 @@ SimData::SimData(const InitialData& id,const Units& u,const CircularSection& dom
 	pg_(Vector2D(0,0), Vector2D(1,0)),outer_(Vector2D(1.2*domain.getRadii().second*cos(domain.getAngles().second),
 	0.95*domain.getRadii().first),Vector2D(1.2*domain.getRadii().second*cos(domain.getAngles().first),1.05*domain.getRadii().second)),
 #ifdef RICH_MPI
-	proctess_(process_positions(outer_),outer_),tess_(proctess_,distribute_grid(proctess_,ss ? ss->mesh_points : 
+	proctess_(ss ? ss->proc_points : process_positions(outer_),outer_),tess_(proctess_,distribute_grid(proctess_,ss ? ss->mesh_points : 
 	create_grid(outer_.getBoundary(),1e-3,0.9*id.radius_list.front())),outer_), // number of cells here
 #else
 	tess_(ss ? ss->mesh_points : create_grid(outer_.getBoundary(),2e-3,0.9*id.radius_list.front()),outer_),
@@ -154,8 +154,10 @@ SimData::SimData(const InitialData& id,const Units& u,const CircularSection& dom
 #endif // RICH_MPI
 ) 
 {
-	if(ss){
+	if(ss)
+	{
 		sim_.setStartTime(ss->time);
+		sim_.setCycle(ss->cycle);
 		delete ss;
 	}
 }
