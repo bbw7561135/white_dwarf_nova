@@ -20,10 +20,16 @@ public:
 
   void operator()(hdsim& sim);
 
+  double suggestInverseTimeStep(void) const
+  {
+    return idt_;
+  }
+
   ~NuclearBurn(void);
   
 private:
 
+  mutable double idt_;
   mutable double t_prev_;
   const string ignore_label_;
   const FermiTable& eos_;

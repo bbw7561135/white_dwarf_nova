@@ -98,6 +98,7 @@ NuclearBurn::NuclearBurn
  const string& ignore_label,
  const FermiTable& eos,
  const string& ehf):
+  idt_(0),
   t_prev_(0),
   ignore_label_(ignore_label),
   eos_(eos),
@@ -141,6 +142,7 @@ namespace
 
 void NuclearBurn::operator()(hdsim& sim)
 {
+  idt_ = 0;
   const double dt = sim.getTime() - t_prev_;
   t_prev_ = sim.getTime();
   double total = 0;
@@ -171,8 +173,8 @@ void NuclearBurn::operator()(hdsim& sim)
 	ignore_label_))
       continue;
     const double energy = (extensives[i].energy-0.5*ScalarProd(extensives[i].momentum,extensives[i].momentum)/extensives[i].mass)
-		/extensives[i].mass;
-	 	   
+		/extensives[i].mass; 
+
 	vector<double> trimmed_tracers = trim_tracers(cell.tracers,fortran_indeces);
     const pair<double,vector<double> > qrec_tracers = 
       burn_step_wrapper
@@ -184,6 +186,7 @@ void NuclearBurn::operator()(hdsim& sim)
 	sim.GetTracerStickerNames().tracer_names),
        dt);
     total += dt*qrec_tracers.first;
+    idt_ = fmax(idt_,qrec_tracers.first/energy);
     const double new_energy = energy + dt*qrec_tracers.first;
 	
     update_tracers(cell.tracers,fortran_indeces,qrec_tracers.second);
