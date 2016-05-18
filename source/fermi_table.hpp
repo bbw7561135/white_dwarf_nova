@@ -65,7 +65,6 @@ public:
   /*! \brief Calculates the temperature
     \param density Density
     \param energy Energy
-    \param aap Average atomic properties
     \return Temperature
    */
   double de2t(double density, double energy,  const vector<double>& tracer_values,

@@ -9,9 +9,7 @@
 */
 
 BurnTime::BurnTime
-(const NuclearBurn& nb,
- const double cfl): 
-  nb_(nb),
+(const double cfl): 
   cfl_(cfl) {}
 
 namespace {
@@ -69,7 +67,7 @@ double BurnTime::operator()(const Tessellation& tess,
 			     const double /*time*/,TracerStickerNames const& tracerstickernames) const
 {
   double res =  cfl_*lazy_min(TimeStepCalculator(tess,cells,eos,point_velocities,tracerstickernames));
-  res = 1/fmax(1/res,cfl_*nb_.suggestInverseTimeStep());
+  res = 1/fmax(1/res,cfl_*nb_->suggestInverseTimeStep());
 #ifdef RICH_MPI
   MPI_Allreduce(&res, &res, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
 #endif

@@ -167,6 +167,11 @@ hdsim& SimData::getSim(void)
 	return sim_;
 }
 
+const BurnTime& SimData::getTSF(void) const
+{
+  return tsf_;
+}
+
 const FermiTable& SimData::getEOS(void) const
 {
 	return eos_;

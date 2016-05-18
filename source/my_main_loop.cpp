@@ -63,7 +63,10 @@ private:
   size_t counter_;
 };
 
-void my_main_loop(hdsim& sim, const FermiTable& eos, bool rerun)
+void my_main_loop(hdsim& sim, 
+		  const FermiTable& eos, 
+		  const BurnTime& tsf,
+		  bool rerun)
 {
  #ifdef RICH_MPI
 	 int rank=0;
@@ -95,14 +98,16 @@ const double tf = 12;
     [new FilteredConserved(rerun ? "rerun_total_conserved.txt" :"total_conserved.txt")]
     ();
   MultipleDiagnostics diag(diag_list);
+  NuclearBurn* nb = new NuclearBurn
+    (string("alpha_table"),
+     string("ghost"),
+     eos,
+     string(rerun ? "rerun_burn_energy_history.txt" : "burn_energy_history.txt"));
+  tsf.attach(nb);
   MultipleManipulation manip
     (VectorInitialiser<Manipulate*>
      (new AtlasSupport())
-     (new NuclearBurn
-      (string("alpha_table"),
-       string("ghost"),
-       eos,
-       string(rerun ? "rerun_burn_energy_history.txt" : "burn_energy_history.txt")))
+     (nb)
      ());
     main_loop(sim,
 	    term_cond,

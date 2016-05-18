@@ -34,6 +34,7 @@
 #include "temperature_cell_updater.hpp"
 #include "source/newtonian/two_dimensional/interpolations/LinearGaussImproved.hpp"
 #include "conic_motion.hpp"
+#include "burn_time.hpp"
 #ifdef RICH_MPI
 #include "source/mpi/SetLoad.hpp"
 #endif // RICH_MPI
@@ -48,6 +49,8 @@ public:
 	  const Snapshot* const ss = 0);
 
   hdsim& getSim(void);
+
+  const BurnTime& getTSF(void) const;
 
   const FermiTable& getEOS(void) const;
 
@@ -68,7 +71,8 @@ VoronoiMesh proctess_;
   CoreAtmosphereGravity cag_;
   CylindricalComplementary geom_force_;
   SeveralSources force_;
-  const SimpleCFL tsf_;
+  //  const SimpleCFL tsf_;
+  const BurnTime tsf_;
   const ConditionActionSequence2 fc_;
   const SimpleExtensiveUpdater eu_;
   const TemperatureCellUpdater cu_;
