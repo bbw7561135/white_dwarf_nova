@@ -9,8 +9,8 @@
 */
 
 BurnTime::BurnTime
-(const double cfl): 
-  cfl_(cfl) {}
+(const double cfl,const double eps): 
+  cfl_(cfl),eps_(eps) {}
 
 namespace {
   class TimeStepCalculator: public LazyList<double>
@@ -67,7 +67,7 @@ double BurnTime::operator()(const Tessellation& tess,
 			     const double /*time*/,TracerStickerNames const& tracerstickernames) const
 {
   double res =  cfl_*lazy_min(TimeStepCalculator(tess,cells,eos,point_velocities,tracerstickernames));
-  res = 1/fmax(1/res,cfl_*nb_->suggestInverseTimeStep());
+  res = 1/fmax(1/res,nb_->suggestInverseTimeStep()/eps_);
 #ifdef RICH_MPI
   MPI_Allreduce(&res, &res, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
 #endif

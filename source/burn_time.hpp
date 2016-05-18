@@ -8,7 +8,7 @@ class BurnTime: public TimeStepFunction
 {
 public:
 
-  BurnTime(const double cfl);
+  BurnTime(const double cfl,const double eps);
 
   void attach(NuclearBurn* nb) const
   {
@@ -26,6 +26,7 @@ public:
 private:
   mutable NuclearBurn* nb_;
   const double cfl_;
+  const double eps_;
 };
 
 #endif // BURN_TIME_HPP

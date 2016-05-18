@@ -131,7 +131,7 @@ SimData::SimData(const InitialData& id,const Units& u,const CircularSection& dom
 #endif // RICH_MPI
 	eos_("eos_tab.coded",1,1,0,generate_atomic_properties()),rs_(),alt_point_motion_(),point_motion_(domain,eos_),evc_(),
 	ghosts_(),interp_(eos_,ghosts_),cag_(u.core_mass,linspace(id.radius_list.front(),id.radius_list.back(),100),u.gravitation_constant,
-	domain.getAngles()),geom_force_(pg_.getAxis()),force_(VectorInitialiser<SourceTerm*>(&cag_)(&geom_force_)()),tsf_(0.2),
+	domain.getAngles()),geom_force_(pg_.getAxis()),force_(VectorInitialiser<SourceTerm*>(&cag_)(&geom_force_)()),tsf_(0.2,0.03),
 	fc_(VectorInitialiser<capp>(capp(new IsBoundaryEdge,new RigidWallFlux(rs_)))(capp(new BothSpecial("ghost"),new ZeroFlux))(),
 	VectorInitialiser<capp2>(capp2(new RegularSpecialEdge("ghost"), new RigidWallFlux2(rs_)))(capp2(new IsBulkEdge,new RegularFlux2(rs_)))(),
 	interp_),eu_(),cu_(string("Temperature"),eos_),init_cond_(calc_init_cond(tess_,eos_,id,domain)),
