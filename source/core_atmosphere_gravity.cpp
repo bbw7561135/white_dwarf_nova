@@ -125,7 +125,7 @@ const double time,
 const TracerStickerNames& tsn) const
 {
 	emc_.ReCalcEnclosedMass(core_mass_,calc_mass_radius_list(tess,cells,tsn,cd),sample_radii_,section2shell_);
-	ConservativeForce cforce(acc_,true);
+	ConservativeForce cforce(acc_,false);
 	return cforce(tess,pg,cd,cells,fluxes,point_velocities,time,tsn);
 }
 

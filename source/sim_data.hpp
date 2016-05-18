@@ -33,6 +33,7 @@
 #include "source/newtonian/two_dimensional/condition_action_sequence_2.hpp"
 #include "temperature_cell_updater.hpp"
 #include "source/newtonian/two_dimensional/interpolations/LinearGaussImproved.hpp"
+#include "conic_motion.hpp"
 #ifdef RICH_MPI
 #include "source/mpi/SetLoad.hpp"
 #endif // RICH_MPI
@@ -60,7 +61,7 @@ VoronoiMesh proctess_;
   const FermiTable eos_;
   const Hllc rs_;
   Eulerian alt_point_motion_;
-  Lagrangian point_motion_;
+  ConicMotion point_motion_;
   const StationaryBox evc_;
   RigidSides ghosts_;
   LinearGaussImproved interp_;

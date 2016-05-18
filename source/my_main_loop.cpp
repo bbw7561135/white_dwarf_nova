@@ -18,6 +18,51 @@
 
 using namespace simulation2d;
 
+
+class ImprovedConstantTimeInterval: public Trigger
+{
+public:
+
+  ImprovedConstantTimeInterval(double dt, double t_next=0): dt_(dt), t_next_(t_next),counter_(0) {}
+
+  bool operator()(const hdsim& sim)
+  {
+	  double max_temp=0;
+	  
+	  if(sim.getTime()>t_next_)
+	  {
+		  t_next_ += dt_;
+		  counter_++;
+		  return true;
+	  }
+	  else
+	  {
+		  if(counter_<400)
+		  {
+		    TracerStickerNames tsn = sim.GetTracerStickerNames();
+			size_t index = static_cast<size_t>(find(tsn.tracer_names.begin(), tsn.tracer_names.end(), string("Temperature"))-tsn.tracer_names.begin());
+			vector<ComputationalCell> const& cells = sim.getAllCells();
+			double max_temp = 0;
+			size_t N = static_cast<size_t>(sim.getTessellation().GetPointNo());
+			for (size_t i = 0; i < N; ++i)
+				max_temp = max(max_temp, cells[i].tracers[index]);
+#ifdef RICH_MPI
+			double send=max_temp;
+			MPI_Allreduce(&send,&max_temp,1,MPI_DOUBLE,MPI_MAX,MPI_COMM_WORLD);
+#endif //RICH_MPI
+			if (max_temp > 1e9)
+				t_next_ = sim.getTime() + min(t_next_ - sim.getTime(),0.05*dt_);
+			return false;
+		  }
+	  }
+  }
+
+private:
+  const double dt_;
+  mutable double t_next_;
+  size_t counter_;
+};
+
 void my_main_loop(hdsim& sim, const FermiTable& eos, bool rerun)
 {
  #ifdef RICH_MPI
@@ -34,18 +79,13 @@ void my_main_loop(hdsim& sim, const FermiTable& eos, bool rerun)
 			 vector<DiagnosticAppendix*>
 			 (1,new TemperatureAppendix(eos)));
 #endif //RICH_MPI
-const double tf = 10;
+const double tf = 12;
 //const double tf = 0.09;
   SafeTimeTermination term_cond(tf, 1e6);
   vector<DiagnosticFunction*> diag_list = VectorInitialiser<DiagnosticFunction*>()
     [new ConsecutiveSnapshots
-     (new ConstantTimeInterval(tf/100),
-	 //(new ConstantTimeInterval(tf*2),
-//	 #ifdef RICH_MPI
-  //    new Rubric((rerun ? "rerun_snapshot_" : "snapshot_")+string("rank_")+int2str(rank)+"_",".h5"),
-	// #else
+     (new ImprovedConstantTimeInterval(tf/300),
       new Rubric(rerun ? "rerun_snapshot_" : "snapshot_",".h5"),
-	  //#endif
       VectorInitialiser<DiagnosticAppendix*>
       (new TemperatureAppendix(eos))
       (new EnergyAppendix(eos))
